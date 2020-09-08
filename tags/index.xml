@@ -1,0 +1,352 @@
+
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+ <channel>
+   <title>Tags on hhatefi</title>
+   <link>https://hhatefi.github.io/tags/</link>
+   <description>Recent content in Tags on hhatefi</description>
+   <generator>Hugo -- gohugo.io</generator>
+   <copyright>&amp;copy; 2020 - hhatefi</copyright>
+   
+       <atom:link href="https://hhatefi.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+   
+   
+     <item>
+       <title>A helper for zipline data bundles</title>
+       <link>https://hhatefi.github.io/posts/zipline_bundles/</link>
+       <pubDate>Sun, 06 Sep 2020 22:30:47 +0200</pubDate>
+       
+       <guid>https://hhatefi.github.io/posts/zipline_bundles/</guid>
+       <description>
+&lt;p&gt;Data bundles in zipline feed trading strategies with price data during
+backtesting. Zipline comes with some data bundles including the one
+that downloads price data from &lt;a href=&#34;https://www.quandl.com/data/WIKI&#34;&gt;quandl&amp;#39;s wiki dataset&lt;/a&gt;. However, it is
+often necessary to employ custom data bundles, for example to fetch
+price of assets not provided by the existing data bundles. Adding such
+bundles to zipline can be error-prone and tricky. It requires several
+steps to be done from reading price data to preprocessing and feeding
+them into zipline internal database. The latter step is analogous
+accross all data bundles. It thus makes sense to simplify the whole
+process by focusing only on price data fetching and preprocessing and
+letting the rest to be done by a generic ingester. I recently tried to
+implement such a &lt;a href=&#34;https://github.com/hhatefi/zipline_bundles/&#34;&gt;generic ingester&lt;/a&gt;.&lt;/p&gt;
+&lt;div id=&#34;outline-container-headline-1&#34; class=&#34;outline-2&#34;&gt;
+&lt;h2 id=&#34;headline-1&#34;&gt;
+Generic Ingester
+&lt;/h2&gt;
+&lt;div id=&#34;outline-text-headline-1&#34; class=&#34;outline-text-2&#34;&gt;
+&lt;p&gt;Zipline requires custom data bundles to implement &lt;code&gt;ingest&lt;/code&gt; function
+&lt;a href=&#34;https://www.zipline.io/bundles.html#writing-a-new-bundle&#34;&gt;properly&lt;/a&gt;. The function basically writes price data and symbol
+information to zipline internal database. A &lt;em&gt;generic&lt;/em&gt; &lt;code&gt;ingest&lt;/code&gt;
+function, on the one hand, implements operations that are identical
+for every data bundle, and on the other hand, enables customization of
+operations that are specific to a data bundle. It can ingest price
+data from a bunch of csv files with specific format or can directly
+download them via the API provided by price data provider.&lt;/p&gt;
+&lt;p&gt;
+I have used the generic ingester to implement data bundles that &lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;reads price data from a directory containig csv files downloaded
+from &lt;a href=&#34;https://finance.yahoo.com&#34;&gt;yahoo finance&lt;/a&gt;,&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;directly download price data from yahoo finance, thanks to
+&lt;a href=&#34;https://pypi.org/project/yahoofinancials/&#34;&gt;yahoofinancials&lt;/a&gt;,&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;directly download price data from &lt;a href=&#34;https://iexcloud.io&#34;&gt;IEX cloud&lt;/a&gt;, thanks to &lt;a href=&#34;https://pypi.org/project/iexfinance/&#34;&gt;iexfinance&lt;/a&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Looking into &lt;a href=&#34;https://github.com/hhatefi/zipline_bundles/tree/master/lib&#34;&gt;their implementation&lt;/a&gt; greatly helps to understand how to
+use the generic ingester. Later in this post, however, I explain how
+to define a new bundle using the generic ingester in detail.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;outline-container-headline-2&#34; class=&#34;outline-2&#34;&gt;
+&lt;h2 id=&#34;headline-2&#34;&gt;
+Installation
+&lt;/h2&gt;
+&lt;div id=&#34;outline-text-headline-2&#34; class=&#34;outline-text-2&#34;&gt;
+&lt;p&gt;There is a quick way to use or test the already mentioned &lt;a href=&#34;*Generic Ingester&#34;&gt;data bundles&lt;/a&gt;
+with zipline. The first step is to get the source from github:&lt;/p&gt;
+&lt;div class=&#34;src src-bash&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;git clone https://github.com/hhatefi/zipline_bundles&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The repository comes with an &lt;a href=&#34;https://github.com/hhatefi/zipline_bundles/blob/master/install.py&#34;&gt;installation script&lt;/a&gt;, which can be used to
+add the data bundles to the zipline framework. Before using it, I
+assume there is already an environment with zipline installed and it
+is ready to be used. The installation is done by&lt;/p&gt;
+&lt;div class=&#34;src src-bash&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#a2f&#34;&gt;cd&lt;/span&gt; zipline_bundles
+python3 installer.py&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;
+The installer copies the following files:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/hhatefi/zipline_bundles/blob/master/lib/extension.py&#34;&gt;extension.py&lt;/a&gt; to &lt;code&gt;$HOME/.zipline&lt;/code&gt;, &lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/hhatefi/zipline_bundles/blob/master/lib/ingester.py&#34;&gt;ingester.py&lt;/a&gt;, &lt;a href=&#34;https://github.com/hhatefi/zipline_bundles/blob/master/lib/yahoo.py&#34;&gt;yahoo.py&lt;/a&gt; and &lt;a href=&#34;https://github.com/hhatefi/zipline_bundles/blob/master/lib/iex.py&#34;&gt;iex.py&lt;/a&gt; into &lt;code&gt;zipline.data.bundles&lt;/code&gt;
+package.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Note that the installer complains if there already exist python
+modules with the same name in the destination directories. To force
+the installer to overwrite the existing modules, add &lt;code&gt;-f&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;
+In general the installer copies all files listed in variable &lt;code&gt;src_ext&lt;/code&gt;
+into &lt;code&gt;$HOME/.zipline&lt;/code&gt; and those listed in &lt;code&gt;src_ing&lt;/code&gt; into
+&lt;code&gt;zipline.data.bundles&lt;/code&gt; package. In case a new bundle is added, the
+appropriate modules can be usually appended to &lt;code&gt;src_ing&lt;/code&gt; list. The
+installation script can then be used to install the new bundle.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;outline-container-headline-3&#34; class=&#34;outline-2&#34;&gt;
+&lt;h2 id=&#34;headline-3&#34;&gt;
+Usage
+&lt;/h2&gt;
+&lt;div id=&#34;outline-text-headline-3&#34; class=&#34;outline-text-2&#34;&gt;
+&lt;p&gt;The available bundles are listed by &lt;/p&gt;
+&lt;div class=&#34;src src-bash&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;zipline bundles&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;If the installation is done successfully, it will show new bundles
+&lt;code&gt;yahoo_csv&lt;/code&gt;, &lt;code&gt;yahoo_direct&lt;/code&gt; and &lt;code&gt;iex&lt;/code&gt;. &lt;/p&gt;
+&lt;p&gt;
+&lt;code&gt;yahoo_csv&lt;/code&gt; bundle takes data from csv files downloaded from &lt;a href=&#34;https://finance.yahoo.com&#34;&gt;yahoo
+finance&lt;/a&gt;. Each file contains price data of a single asset and shall be
+named as &lt;code&gt;assert_name.csv&lt;/code&gt;. The bundle reads all the csv files located
+in a directory given by environment variable &lt;code&gt;YAHOO_CSVDIR&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;src src-bash&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#b8860b&#34;&gt;YAHOO_CSVDIR&lt;/span&gt;&lt;span style=&#34;color:#666&#34;&gt;=&lt;/span&gt;/path/to/csvdir zipline ingest -b yahoo_csv&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;
+&lt;code&gt;yahoo_direct&lt;/code&gt; directly downloads price data from &lt;a href=&#34;https://finance.yahoo.com&#34;&gt;yahoo finance&lt;/a&gt;. The
+bundle exracts asset names from environment variable &lt;code&gt;YAHOO_SYM_LST&lt;/code&gt;,
+which holds a comma separated list of asset names.&lt;/p&gt;
+&lt;div class=&#34;src src-bash&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#b8860b&#34;&gt;YAHOO_SYM_LST&lt;/span&gt;&lt;span style=&#34;color:#666&#34;&gt;=&lt;/span&gt;SPY,AAPL zipline ingest -b yahoo_direct&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The start and end date of price data ingestion can be set into
+variables &lt;code&gt;start_date&lt;/code&gt; and &lt;code&gt;end_date&lt;/code&gt;, respectively. The variables are
+passed to function &lt;code&gt;get_downloader&lt;/code&gt; where the bundle is registered in
+&lt;code&gt;$HOME/.zipline/extension.py&lt;/code&gt;. More information comes next.&lt;/p&gt;
+&lt;p&gt;
+&lt;code&gt;iex&lt;/code&gt; it downloads price data from IEX cloud. Its usage is fairly
+similar to that of &lt;code&gt;yahoo_direct&lt;/code&gt;. Fetching price data from IEX cloud
+however requires passing a valid API token, which is stored in
+environment variable &lt;code&gt;IEX_TOKEN&lt;/code&gt; and read by &lt;code&gt;iexfinance&lt;/code&gt;
+package. Moreover, the environmet variable storing asset names is
+called &lt;code&gt;IEX_SYM_LST&lt;/code&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;outline-container-headline-4&#34; class=&#34;outline-2&#34;&gt;
+&lt;h2 id=&#34;headline-4&#34;&gt;
+Defining new bundles
+&lt;/h2&gt;
+&lt;div id=&#34;outline-text-headline-4&#34; class=&#34;outline-text-2&#34;&gt;
+&lt;p&gt;In zipline a new bundle, which implements the &lt;code&gt;ingest&lt;/code&gt; function, must
+be registered in the extension module &lt;code&gt;extension.py&lt;/code&gt;, ususaly found in
+&lt;code&gt;$HOME/.zipline/&lt;/code&gt;. Here, I explain how to implement an &lt;code&gt;ingest&lt;/code&gt;
+function and how to register it inside the extension module. I start
+with csv data bundles.&lt;/p&gt;
+&lt;div id=&#34;outline-container-headline-5&#34; class=&#34;outline-3&#34;&gt;
+&lt;h3 id=&#34;headline-5&#34;&gt;
+New CSV data bundle
+&lt;/h3&gt;
+&lt;div id=&#34;outline-text-headline-5&#34; class=&#34;outline-text-3&#34;&gt;
+&lt;p&gt;This bundle aims to read csv files from a location, to store them into
+&lt;code&gt;pandas.DataFrame&lt;/code&gt; objects, to preprocess and feed them into zipline
+internal database. Most of the time for csv files, processing the
+column name is the only thing needs to be done. We also need to
+specify where the csv files are located. The registration of a csv
+data bundle looks as follows:&lt;/p&gt;
+&lt;div class=&#34;src src-python&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#a2f;font-weight:bold&#34;&gt;from&lt;/span&gt; &lt;span style=&#34;color:#00f;font-weight:bold&#34;&gt;zipline.data.bundles&lt;/span&gt; &lt;span style=&#34;color:#a2f;font-weight:bold&#34;&gt;import&lt;/span&gt; register
+&lt;span style=&#34;color:#a2f;font-weight:bold&#34;&gt;from&lt;/span&gt; &lt;span style=&#34;color:#00f;font-weight:bold&#34;&gt;zipline.data.bundles.ingester&lt;/span&gt; &lt;span style=&#34;color:#a2f;font-weight:bold&#34;&gt;import&lt;/span&gt; csv_ingester
+register(
+    &lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;yahoo_csv&amp;#39;&lt;/span&gt;,
+    csv_ingester(&lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;YAHOO&amp;#39;&lt;/span&gt;,
+                 every_min_bar&lt;span style=&#34;color:#666&#34;&gt;=&lt;/span&gt;False, &lt;span style=&#34;color:#080;font-style:italic&#34;&gt;# the price is daily&lt;/span&gt;
+                 csvdir_env&lt;span style=&#34;color:#666&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;YAHOO_CSVDIR&amp;#39;&lt;/span&gt;,
+                 csvdir&lt;span style=&#34;color:#666&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;/path/to/csv/dir&amp;#39;&lt;/span&gt;,
+                 index_column&lt;span style=&#34;color:#666&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;Date&amp;#39;&lt;/span&gt;,
+                 column_mapper&lt;span style=&#34;color:#666&#34;&gt;=&lt;/span&gt;{&lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;Open&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;open&amp;#39;&lt;/span&gt;,
+                                &lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;High&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;high&amp;#39;&lt;/span&gt;,
+                                &lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;Low&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;low&amp;#39;&lt;/span&gt;,
+                                &lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;Close&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;close&amp;#39;&lt;/span&gt;,
+                                &lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;Volume&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;volume&amp;#39;&lt;/span&gt;,
+                                &lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;Adj Close&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;price&amp;#39;&lt;/span&gt;,
+                 },
+    ),
+    calendar_name&lt;span style=&#34;color:#666&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;NYSE&amp;#39;&lt;/span&gt;,
+)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;
+As mensioned before, the registration is done in
+&lt;code&gt;$HOME/.zipline/extension.py&lt;/code&gt;. The &lt;code&gt;ingest&lt;/code&gt; function is defined by
+creating an object of type &lt;code&gt;csv_ingester&lt;/code&gt;, which is a functor. The
+parameters are as follows:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;&amp;#39;YAHOO&amp;#39;&lt;/code&gt; is an arbitrary name for the exchange providing data.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;every_min_bar&lt;/code&gt; indicates the price frequency. When it is &lt;code&gt;true&lt;/code&gt;,
+the prices in csv files are supposed to be reported per minute.
+Otherwise they are expected to be stored daily.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;csvdir_env&lt;/code&gt; is the name of the environment variable holding csv
+directory. It can be set, for instance, while ingesting price data:&lt;/p&gt;
+&lt;div class=&#34;src src-bash&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#b8860b&#34;&gt;YAHOO_CSV&lt;/span&gt;&lt;span style=&#34;color:#666&#34;&gt;=&lt;/span&gt;/path/to/csvdir zipline ingest -b yahoo_csv&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Zipline then searches for csv files inside &lt;code&gt;/path/to/csvdir&lt;/code&gt;. The
+data bundle extracts the asset names from the filename by striping
+&lt;code&gt;csv&lt;/code&gt; extension from the filename. For example, it considers
+&lt;code&gt;AAPL.csv&lt;/code&gt; to store price data of Apple stock.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;csvdir&lt;/code&gt; is the default csv directory that is used in case the
+environemnt variable is not set to a valid csv directory.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;index_column&lt;/code&gt; is the column name inside csv file that stores time
+and date information. The bundle reads csv files into
+&lt;code&gt;pandas.DataFrame&lt;/code&gt; objects with the index set to the given column.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;column_mapper&lt;/code&gt; is a dictionary to be used for renaming data columns
+to comply with OHLCV format, as expected by zipline. As said
+earlier, price data are stored in dataframe objects, whose columns
+are identical to the corresponding csv files. Renaming is necessary
+if the csv files do not respect OHLCV format.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;There are two other parameters passed to the &lt;code&gt;register&lt;/code&gt;
+function. &lt;code&gt;&amp;#39;yahoo_csv&amp;#39;&lt;/code&gt; is the bundle name and &lt;code&gt;calender_name&lt;/code&gt; is the
+&lt;a href=&#34;https://www.zipline.io/trading-calendars.html&#34;&gt;trading calendar&lt;/a&gt; on which the date and time of prices are based.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;outline-container-headline-6&#34; class=&#34;outline-3&#34;&gt;
+&lt;h3 id=&#34;headline-6&#34;&gt;
+New direct data bundle
+&lt;/h3&gt;
+&lt;div id=&#34;outline-text-headline-6&#34; class=&#34;outline-text-3&#34;&gt;
+&lt;p&gt;This type of bundle directly downloads price data via the API provided
+by a data provider. The &lt;em&gt;downloader&lt;/em&gt; function is responsible to fetch
+price data and deliver it to the ingester. The ingester then feeds the
+data into zipline internal database. Thus, the main step is to define
+the downloader. Similar to a csv ingester, a direct ingester needs to
+be regitered before being used by zipline. As an example, I explain,
+step by step, how a bundle capable of fetching data from &lt;a href=&#34;https://iexcloud.io/&#34;&gt;IEX cloud&lt;/a&gt; can
+be registered and defined.&lt;/p&gt;
+&lt;p&gt;
+As first, a &lt;em&gt;downloader&lt;/em&gt; function is required to download price data
+via IEX cloud API. The downloader is invoked by the ingester with
+appropriate parameters. It needs therefore to provide a specific
+signature.&lt;/p&gt;
+&lt;div class=&#34;src src-python&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#a2f;font-weight:bold&#34;&gt;from&lt;/span&gt; &lt;span style=&#34;color:#00f;font-weight:bold&#34;&gt;pandas&lt;/span&gt; &lt;span style=&#34;color:#a2f;font-weight:bold&#34;&gt;import&lt;/span&gt; Timestamp
+&lt;span style=&#34;color:#a2f;font-weight:bold&#34;&gt;from&lt;/span&gt; &lt;span style=&#34;color:#00f;font-weight:bold&#34;&gt;iexfinance.stocks&lt;/span&gt; &lt;span style=&#34;color:#a2f;font-weight:bold&#34;&gt;import&lt;/span&gt; get_historical_data
+
+&lt;span style=&#34;color:#a2f;font-weight:bold&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#00a000&#34;&gt;get_downloader&lt;/span&gt;(start_date,
+               end_date,):
+    &lt;span style=&#34;color:#b44&#34;&gt;&amp;#34;&amp;#34;&amp;#34;returns a downloader closure for iex cloud
+&lt;/span&gt;&lt;span style=&#34;color:#b44&#34;&gt;    :param start_date: the first day on which dat are downloaded
+&lt;/span&gt;&lt;span style=&#34;color:#b44&#34;&gt;    :param end_date: the last day on which data are downloaded
+&lt;/span&gt;&lt;span style=&#34;color:#b44&#34;&gt;    :type start_date: str in format YYYY-MM-DD
+&lt;/span&gt;&lt;span style=&#34;color:#b44&#34;&gt;    :type end_date: str in format YYYY-MM-DD
+&lt;/span&gt;&lt;span style=&#34;color:#b44&#34;&gt;    &amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
+    dt_start&lt;span style=&#34;color:#666&#34;&gt;=&lt;/span&gt;Timestamp(start_date)&lt;span style=&#34;color:#666&#34;&gt;.&lt;/span&gt;date()
+    dt_end&lt;span style=&#34;color:#666&#34;&gt;=&lt;/span&gt;Timestamp(end_date)&lt;span style=&#34;color:#666&#34;&gt;.&lt;/span&gt;date()
+
+    &lt;span style=&#34;color:#a2f;font-weight:bold&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#00a000&#34;&gt;downloader&lt;/span&gt;(symbol):
+        &lt;span style=&#34;color:#b44&#34;&gt;&amp;#34;&amp;#34;&amp;#34;downloads symbol price data using iex cloud API
+&lt;/span&gt;&lt;span style=&#34;color:#b44&#34;&gt;        :param symbol: the symbol name
+&lt;/span&gt;&lt;span style=&#34;color:#b44&#34;&gt;        :type symbol: str
+&lt;/span&gt;&lt;span style=&#34;color:#b44&#34;&gt;        &amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
+        df &lt;span style=&#34;color:#666&#34;&gt;=&lt;/span&gt; get_historical_data(symbol, dt_start, dt_end, output_format&lt;span style=&#34;color:#666&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;pandas&amp;#39;&lt;/span&gt;)
+
+        &lt;span style=&#34;color:#a2f;font-weight:bold&#34;&gt;return&lt;/span&gt; df
+
+    &lt;span style=&#34;color:#a2f;font-weight:bold&#34;&gt;return&lt;/span&gt; downloader&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;
+The downloader is generated by function &lt;code&gt;get_downloader&lt;/code&gt; as a
+closure. This function takes the date interval via arguments
+&lt;code&gt;start_date&lt;/code&gt; and &lt;code&gt;end_date&lt;/code&gt;, within which price data are
+downloaded. The downloader takes the symbol name as the argument and
+fetches price data by calling
+&lt;code&gt;get_historical_data&lt;/code&gt;. &lt;code&gt;get_historical_data&lt;/code&gt; provided by package
+&lt;a href=&#34;https://pypi.org/project/iexfinance/&#34;&gt;iexfinance&lt;/a&gt; handles relevant REST API calls to fetch data and then
+converts and returns them as a &lt;code&gt;pandas.DataFrame&lt;/code&gt;. The return value
+must in addition complying with OHLCV format. Assume the above code
+block is stored as &lt;code&gt;iex.py&lt;/code&gt; within &lt;code&gt;zipline.data.bundles&lt;/code&gt;, the next
+step is to register a new data bundle, which uses the downloader to
+fetch price data from IEX cloud. The registration is done within
+&lt;code&gt;extension.py&lt;/code&gt;.&lt;/p&gt;
+&lt;div class=&#34;src src-python&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#a2f;font-weight:bold&#34;&gt;from&lt;/span&gt; &lt;span style=&#34;color:#00f;font-weight:bold&#34;&gt;zipline.data.bundles.ingester&lt;/span&gt; &lt;span style=&#34;color:#a2f;font-weight:bold&#34;&gt;import&lt;/span&gt; direct_ingester
+&lt;span style=&#34;color:#a2f;font-weight:bold&#34;&gt;from&lt;/span&gt; &lt;span style=&#34;color:#00f;font-weight:bold&#34;&gt;zipline.data.bundles&lt;/span&gt; &lt;span style=&#34;color:#a2f;font-weight:bold&#34;&gt;import&lt;/span&gt; iex
+register(&lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;iex&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#080;font-style:italic&#34;&gt;# bundle&amp;#39;s name&lt;/span&gt;
+         direct_ingester(&lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;IEX Cloud&amp;#39;&lt;/span&gt;,
+                         every_min_bar&lt;span style=&#34;color:#666&#34;&gt;=&lt;/span&gt;False,
+                         symbol_list_env&lt;span style=&#34;color:#666&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;IEX_SYM_LST&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#080;font-style:italic&#34;&gt;# the environemnt variable holding the comma separated list of asset names&lt;/span&gt;
+                         downloader&lt;span style=&#34;color:#666&#34;&gt;=&lt;/span&gt;iex&lt;span style=&#34;color:#666&#34;&gt;.&lt;/span&gt;get_downloader(start_date&lt;span style=&#34;color:#666&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;2015-01-01&amp;#39;&lt;/span&gt;,
+                                                   end_date&lt;span style=&#34;color:#666&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;2020-01-01&amp;#39;&lt;/span&gt;
+                         ),
+         ),
+         calendar_name&lt;span style=&#34;color:#666&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#b44&#34;&gt;&amp;#39;NYSE&amp;#39;&lt;/span&gt;,
+)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;The bundles is called &lt;code&gt;iex&lt;/code&gt; and similar to &lt;code&gt;yahoo_csv&lt;/code&gt; uses &lt;code&gt;NYSE&lt;/code&gt;
+trading calendar. The &lt;code&gt;ingest&lt;/code&gt; function is defined by
+creating an object of type &lt;code&gt;direct_ingester&lt;/code&gt;, which is a functor. The
+parameters are as follows:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;&amp;#39;IEX Cloud&amp;#39;&lt;/code&gt; is an arbitrary name for the exchange providing data.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;every_min_bar&lt;/code&gt; indicates the price frequency. When it is &lt;code&gt;true&lt;/code&gt;,
+the prices are supposed to be reported per minute. Otherwise they
+are daily prices.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;symbol_list_env&lt;/code&gt; is the name of the environment variable holding a
+comma separated list of asset names. It can be set, for instance,
+while ingesting price data:&lt;/p&gt;
+&lt;div class=&#34;src src-bash&#34;&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;color:#b8860b&#34;&gt;IEX_SYM_LST&lt;/span&gt;&lt;span style=&#34;color:#666&#34;&gt;=&lt;/span&gt;SPY,AAPL,TWTR zipline ingest -b iex&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;Zipline then download data for assets &lt;code&gt;SPY&lt;/code&gt;, &lt;code&gt;AAPL&lt;/code&gt; and &lt;code&gt;TWTR&lt;/code&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;downloader&lt;/code&gt; is the downloader function, which in this case given by
+&lt;code&gt;iex.get_downloader&lt;/code&gt;, defined above. Price data are downloaded
+between given &lt;code&gt;start_date&lt;/code&gt; and &lt;code&gt;end_date&lt;/code&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;outline-container-headline-7&#34; class=&#34;outline-2&#34;&gt;
+&lt;h2 id=&#34;headline-7&#34;&gt;
+Conclusion
+&lt;/h2&gt;
+&lt;div id=&#34;outline-text-headline-7&#34; class=&#34;outline-text-2&#34;&gt;
+&lt;p&gt;This helper aims to simplify the process of defining new data bundles
+regardless of reading data from csv files or directly downloading them
+via network. The user can only focus on data retrival and filtering
+and let the other tasks done by the helper module.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+     </item>
+   
+ </channel>
+</rss>
