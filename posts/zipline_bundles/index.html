@@ -197,13 +197,14 @@ in a directory given by environment variable <code>YAHOO_CSVDIR</code>:</p>
 <p>
 <code>yahoo_direct</code> directly downloads price data from <a href="https://finance.yahoo.com">yahoo finance</a>. The
 bundle exracts asset names from environment variable <code>YAHOO_SYM_LST</code>,
-which holds a comma separated list of asset names.</p>
+which holds a comma separated list of asset names, for example:</p>
 <div class="src src-bash">
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">YAHOO_SYM_LST</span><span style="color:#666">=</span>SPY,AAPL zipline ingest -b yahoo_direct</code></pre></div>
 </div>
-<p>The start and end date of price data ingestion can be set into
-variables <code>start_date</code> and <code>end_date</code>, respectively. The variables are
-passed to function <code>get_downloader</code> where the bundle is registered in
+<p>gets price data of assets <code>SPY</code> and <code>AAPL</code>. The start and end date of
+price data ingestion can be set into variables <code>start_date</code> and
+<code>end_date</code>, respectively. The variables are passed to function
+<code>get_downloader</code> where the bundle is registered in
 <code>$HOME/.zipline/extension.py</code>. More information comes next.</p>
 <p>
 <code>iex</code> it downloads price data from IEX cloud. Its usage is fairly
@@ -294,8 +295,8 @@ and date information. The bundle reads csv files into
 <p><code>column_mapper</code> is a dictionary to be used for renaming data columns
 to comply with OHLCV format, as expected by zipline. As said
 earlier, price data are stored in dataframe objects, whose columns
-are identical to the corresponding csv files. Renaming is necessary
-if the csv files do not respect OHLCV format.</p>
+are identical to the corresponding columns in csv files. Renaming is
+necessary if the csv files do not respect OHLCV format.</p>
 </li>
 </ul>
 <p>There are two other parameters passed to the <code>register</code>
@@ -317,7 +318,7 @@ be regitered before being used by zipline. As an example, I explain,
 step by step, how a bundle capable of fetching data from <a href="https://iexcloud.io/">IEX cloud</a> can
 be registered and defined.</p>
 <p>
-As first, a <em>downloader</em> function is required to download price data
+At first, a <em>downloader</em> function is required to download price data
 via IEX cloud API. The downloader is invoked by the ingester with
 appropriate parameters. It needs therefore to provide a specific
 signature.</p>
@@ -356,8 +357,8 @@ fetches price data by calling
 <code>get_historical_data</code>. <code>get_historical_data</code> provided by package
 <a href="https://pypi.org/project/iexfinance/">iexfinance</a> handles relevant REST API calls to fetch data and then
 converts and returns them as a <code>pandas.DataFrame</code>. The return value
-must in addition complying with OHLCV format. Assume the above code
-block is stored as <code>iex.py</code> within <code>zipline.data.bundles</code>, the next
+must in addition comply with OHLCV format. Assume the above code block
+is stored as <code>iex.py</code> within <code>zipline.data.bundles</code> package, the next
 step is to register a new data bundle, which uses the downloader to
 fetch price data from IEX cloud. The registration is done within
 <code>extension.py</code>.</p>
@@ -414,8 +415,9 @@ Conclusion
 <div id="outline-text-headline-7" class="outline-text-2">
 <p>This helper aims to simplify the process of defining new data bundles
 regardless of reading data from csv files or directly downloading them
-via network. The user can only focus on data retrival and filtering
-and let the other tasks done by the helper module.</p>
+via network. New data bundles can be added by customizing the generic
+ingester. The user can only focus on data retrival and filtering and
+let the other tasks done by the helper module.</p>
 </div>
 </div>
 
