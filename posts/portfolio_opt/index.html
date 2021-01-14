@@ -1,0 +1,504 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <title>Portfolio Optimization - hhatefi</title>
+  <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="The HTML5 Herald" />
+<meta name="author" content="Hassan Hatefi" /><meta property="og:title" content="Portfolio Optimization" />
+<meta property="og:description" content="Modern portfolio theory provides a framework to address asset allocation problem and construct portfolios. The idea was first put forward by Harry Markowitz in 1952 and since then has been enhanced both in theory and practice and found its application in financial industry." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://hhatefi.github.io/posts/portfolio_opt/" />
+<meta property="article:published_time" content="2021-01-14T15:02:25+01:00" />
+<meta property="article:modified_time" content="2021-01-14T15:02:25+01:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Portfolio Optimization"/>
+<meta name="twitter:description" content="Modern portfolio theory provides a framework to address asset allocation problem and construct portfolios. The idea was first put forward by Harry Markowitz in 1952 and since then has been enhanced both in theory and practice and found its application in financial industry."/>
+
+<meta name="generator" content="Hugo 0.79.0" />
+    
+    <script src="https://hhatefi.github.io/js/mathjax-config.js" defer></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://hhatefi.github.io/fontawesome/css/all.min.css" />
+  
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda" />
+  
+  
+  <link rel="stylesheet" type="text/css" href="https://hhatefi.github.io/css/styles.css" />
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-178629578-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-178629578-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+<body>
+  <div id="container">
+    <header>
+      <h1>
+                <a href="https://hhatefi.github.io/">hhatefi</a>
+            </h1>
+
+      <ul id="social-media">
+             <li>
+               <a href="https://github.com/hhatefi" title="GitHub">
+               <i class="fab fa-github fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="https://linkedin.com/in/hassan-hatefi" title="LinkedIn">
+               <i class="fab fa-linkedin fa-lg"></i>
+               </a>
+             </li>
+      </ul>
+      
+      <p><em>Curious about computing, modeling and analysis</em></p>
+      
+    </header>
+
+    
+<nav>
+    <ul>
+        
+    </ul>
+</nav>
+
+
+    <main>
+
+
+
+
+<article>
+
+    <h1>Portfolio Optimization</h1>
+
+    
+      <aside>
+    <ul>
+        <li>
+            <time class="post-date" datetime="2021-01-14T15:02:25&#43;01:00">Jan 14, 2021</time>
+        </li>
+        
+        
+
+        
+
+        <li>9 minutes read</li>
+    </ul>
+</aside>
+
+    
+
+    
+
+
+    <p>Modern portfolio theory provides a framework to address asset
+allocation problem and construct portfolios. The idea was first put
+forward by Harry Markowitz in 1952 and since then has been enhanced
+both in theory and practice and found its application in financial
+industry. In this post, I formulate asset allocation problem and
+explain with a simple example how to solve it using mean-variance
+optimization.</p>
+<h2 id="problem-formulation-as-mean-variance-optimization">Problem formulation as mean-variance optimization</h2>
+<p>Assume an investor has to select a portfolio comprised of \(N\) risky
+assets. The investor&rsquo;s selection is represented by vector \(\boldsymbol
+w=(w_1, w_2,\dotsc,w_N)^T\), where \(w_i\) denotes the fraction of the
+capital invested in asset \(i\). The fractions should indeed sum up to
+one:</p>
+<p>\[
+\sum_{i=1}^{N}w_i = 1
+\]</p>
+<p>Assume for the moment that short selling is possible, which means
+weights can be negative. Now if the return of each asset is known, it
+will be possible to quantify the performance of the
+portfolio. However, asserts are risky, which means their returns vary
+and so does the portfolio return. Therefore, portfolio and asset
+returns are modeled as random variables. Let random variable \(R_i\)
+denote the return of asset \(i\) and so random vector \(\boldsymbol
+R=(R_1,R_2,\dotsc,R_N)^T\) be the return of all assets. The overall
+return of the portfolio is then specified by random variable</p>
+<p>\[
+R_p=\sum_{i=1}^{N}w_iR_i=\boldsymbol w^T\boldsymbol R
+\]</p>
+<p>Moreover, let \(\boldsymbol\mu=(\mu_1,\mu_2,\dotsc,\mu_N)^T\) be the
+vector of expected returns, where \(\mu_i\) is the expected return of
+asset \(i\), i.e. \(\mu_i=E(R_i)\). The performance of the portfolio can
+then be assessed by its expected return \(\mu_p=\boldsymbol
+w^T\boldsymbol\mu\). Now the question is how to quantify the risk of the
+portfolio. Markowitz used the overall variance of the portfolio, which
+is the variance of random variable \(R_p\), as the risk measure. It is
+not hard to see that the variance can be computed as follows:</p>
+<p>\[
+\sigma_p=\boldsymbol w^T\Sigma\boldsymbol w
+\]</p>
+<p>where \(\Sigma=\{\sigma_{ij}\}_{1\le i,j\le N}\) is the covariance
+matrix of asset returns with \(\sigma_{ij}\) being the covariance
+between the return of asset \(i\) and \(j\).</p>
+<p>Modern portfolio theory tries to select portfolios by offering a
+trade-off between their risk and return. It aims to compute the least
+risky portfolio for a given return level or the most profitable
+portfolio entailing a predefined risk level. It can be formulated as an
+optimization problem in variant ways. Here, I explain the <em>risk
+minimization</em> formulation, where the portfolio risk is subject to
+minimization while its expected return is kept at a predefined level.
+\[ \min~\boldsymbol w^T \Sigma \boldsymbol w \] subject to</p>
+<p>\begin{align*}
+\boldsymbol w^T \boldsymbol u&amp;=\mu_0\\\<br>
+\boldsymbol w^T\boldsymbol 1&amp;=1
+\end{align*}</p>
+<p>where \(\boldsymbol 1=(1,1,\dotso,1)^T\) denotes all-one vector. The
+last constraint assures that the asset weights sum up to
+one. Basically, the optimization problem computes asset weights
+\(\boldsymbol w\) in such a way that the constructed portfolio involves
+the minimum possible risk and furthermore produces a desired return
+given by \(\mu_0\). Portfolio managers usually add more complicated
+constraints and objective terms to change this formulation based on
+their own requirements. For the sake of simplicity, I consider only
+the above optimization problem without any extra constraints and
+objective terms.</p>
+<h3 id="computing-the-efficient-frontier">Computing the efficient frontier</h3>
+<p>This section demonstrates the set of all efficient portfolios that are
+selected by the above optimization problem. The risk minimization
+formulation chooses for any given level of expected return the
+portfolio with the minimum risk from the set of all possible
+portfolios. Such minimum variance portfolios for different expected
+returns constitute a set, which is called <em>efficient frontier</em>. In
+order to find this set, the optimization problem should be solved for
+all given expected returns. The risk minimization formulation,
+described above, is a quadratic optimization problem with equality
+constraints and has an analytical solution. The problem can be solved
+using the method of Lagrange multipliers (see e.g. Fabozzi
+et. al. 2010, Section 8) with the solution given by:</p>
+<p>\begin{equation}
+\label{eq:ef}
+\sigma_0^2=\frac{A\mu_0^2-2B\mu_0+C}{AC-B^2}
+\end{equation}</p>
+<p>where \(A=\boldsymbol 1^T\Sigma^{-1}\boldsymbol 1\), \(B=\boldsymbol
+1^T\Sigma^{-1}\boldsymbol\mu\) and \(C=\boldsymbol\mu^T
+\Sigma^{-1}\boldsymbol\mu\). According to Equation \(\eqref{eq:ef}\), the
+minimum variance \(\sigma_0^2\) of a portfolio form a quadratic function
+of \(\mu_0\). This quadratic function has a minimum value, which
+corresponds to the portfolio with the global minimum variance. This can be
+computed by:</p>
+<p>\[
+\frac{\mathrm{d}\sigma_0^2}{\mathrm{d}\mu_0}=\frac{2A\mu_0-2B}{AC-B^2}=0\Rightarrow\mu_0=\frac{A}{B}=\frac{\boldsymbol 1^T\Sigma^{-1}}{\boldsymbol 1^T\Sigma^{-1}\boldsymbol 1}\boldsymbol\mu
+\]</p>
+<p>Since we know that \(\mu_0=\boldsymbol w^T\boldsymbol\mu\) then the
+global minimum variance portfolio becomes:</p>
+<p>\[
+\boldsymbol w_{\mathrm{min}}=\frac{\Sigma^{-1}\boldsymbol 1}{\boldsymbol 1^T\Sigma^{-1}\boldsymbol 1}
+\]</p>
+<p>This portfolio is not interesting only because it is the least risky
+one, but also because its construction does not require any estimation
+of expected returns (vector \(\boldsymbol\mu\)). That is important, as
+such an estimation is subject to error and uncertainty, particularly
+if it relies on historical price data.</p>
+<p>With all the formulas given above, computing the efficient frontier
+will be straightforward. At first we pick up our universe, the set of
+all assets we want to invest in and then download their price
+data. The follwing python code uses <code>yfinance</code> package for this
+purpose.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">yfinance</span> <span style="color:#a2f;font-weight:bold">as</span> <span style="color:#00f;font-weight:bold">yf</span>
+<span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">numpy</span> <span style="color:#a2f;font-weight:bold">as</span> <span style="color:#00f;font-weight:bold">np</span>
+<span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">pandas</span> <span style="color:#a2f;font-weight:bold">as</span> <span style="color:#00f;font-weight:bold">pd</span>
+<span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">matplotlib.pyplot</span> <span style="color:#a2f;font-weight:bold">as</span> <span style="color:#00f;font-weight:bold">plt</span>
+
+assets <span style="color:#666">=</span> <span style="color:#b44">&#34;GOOG MA AMZN GM AAPL&#34;</span>
+data <span style="color:#666">=</span> yf<span style="color:#666">.</span>download(assets, start<span style="color:#666">=</span><span style="color:#b44">&#34;2019-01-01&#34;</span>, end<span style="color:#666">=</span><span style="color:#b44">&#34;2019-12-31&#34;</span>)[<span style="color:#b44">&#39;Adj Close&#39;</span>]
+</code></pre></div><p>One of the main challenges of portfolio optimization is the estimation
+of expected returns \(\boldsymbol\mu\) and the covariance matrix
+\(\Sigma\). One approach is to estimate them by sample mean and
+covariance, respectively. However, it is known to provide poor
+estimation and to show high sensitivity to price fluctuation,
+specially for expected returns. There are several other estimations
+that are generally considered more precise and more stable. Package
+<code>pyopt</code> provides different models for computing expected returns and
+the covariance matrix. Here we use exponential moving average model
+for expected returns and exponential covariance for the covariance
+matrix.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">mu<span style="color:#666">=</span>expected_returns<span style="color:#666">.</span>return_model(data, method<span style="color:#666">=</span><span style="color:#b44">&#39;ema_historical_return&#39;</span>)
+sigma<span style="color:#666">=</span>risk_models<span style="color:#666">.</span>risk_matrix(data, method<span style="color:#666">=</span><span style="color:#b44">&#39;exp_cov&#39;</span>)
+</code></pre></div><p>Now all the ingredients are ready to derive the efficient frontier.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">matplotlib.pyplot</span> <span style="color:#a2f;font-weight:bold">as</span> <span style="color:#00f;font-weight:bold">plt</span>
+<span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">math</span>
+
+sigma_inv<span style="color:#666">=</span>np<span style="color:#666">.</span>linalg<span style="color:#666">.</span>inv(sigma)
+all_ones<span style="color:#666">=</span>np<span style="color:#666">.</span>ones(sigma<span style="color:#666">.</span>shape[<span style="color:#666">0</span>])
+A<span style="color:#666">=</span>all_ones<span style="color:#a2f">@sigma_inv@all_ones</span>
+B<span style="color:#666">=</span>all_ones<span style="color:#a2f">@sigma_inv@mu</span>
+C<span style="color:#666">=</span>mu<span style="color:#a2f">@sigma_inv@mu</span>
+delta<span style="color:#666">=</span>A<span style="color:#666">*</span>C<span style="color:#666">-</span>B<span style="color:#666">*</span>B
+compute_risk<span style="color:#666">=</span><span style="color:#a2f;font-weight:bold">lambda</span> mu0: np<span style="color:#666">.</span>sqrt((A<span style="color:#666">*</span>mu0<span style="color:#666">*</span>mu0 <span style="color:#666">-</span> <span style="color:#666">2</span><span style="color:#666">*</span>B<span style="color:#666">*</span>mu0 <span style="color:#666">+</span> C) <span style="color:#666">/</span> delta)
+mu0<span style="color:#666">=</span>np<span style="color:#666">.</span>linspace(<span style="color:#666">0</span>, <span style="color:#666">3.5</span>, <span style="color:#666">40</span>)
+sigma0<span style="color:#666">=</span>compute_risk(mu0)
+plt<span style="color:#666">.</span>plot(sigma0, mu0)
+</code></pre></div><p>The result is illustrated in the next diagram.</p>
+<figure class="diag">
+    <img src="https://hhatefi.github.io/ox-hugo/ef.svg"
+         alt="Figure 1: Efficient frontier without risk free asset"/> <figcaption>
+            <p>Figure 1: Efficient frontier without risk free asset</p>
+        </figcaption>
+</figure>
+
+<p>As it can be observed, increasing the expected return (\(\mu_0\)) leads
+to portfolios that take higher risks. Selecting a portfolio with lower
+risk, on the other hand, decrease its performance as well.</p>
+<p>We can also calculate the global minimum portfolio weights, its risk
+and return characteristics.</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">gmin_mu0<span style="color:#666">=</span>B<span style="color:#666">/</span>A                       <span style="color:#080;font-style:italic"># the expected return at the global minimum risk</span>
+gmin_sigma0<span style="color:#666">=</span>compute_risk(gmin_mu0) <span style="color:#080;font-style:italic"># the global minimum risk</span>
+w_gmin<span style="color:#666">=</span>sigma_inv<span style="color:#a2f">@all_ones</span><span style="color:#666">/</span>A        <span style="color:#080;font-style:italic"># the global minimum risk portfolio</span>
+</code></pre></div><table>
+<thead>
+<tr>
+<th></th>
+<th style="text-align:center">AAPL</th>
+<th style="text-align:center">AMZN</th>
+<th style="text-align:center">GM</th>
+<th style="text-align:center">GOOG</th>
+<th style="text-align:center">MA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Weights</td>
+<td style="text-align:center">9.62%</td>
+<td style="text-align:center">22.08%</td>
+<td style="text-align:center">23.46%</td>
+<td style="text-align:center">19.48%</td>
+<td style="text-align:center">25.37%</td>
+</tr>
+<tr>
+<td>Return</td>
+<td style="text-align:center">1.04</td>
+<td style="text-align:center">0.19</td>
+<td style="text-align:center">0.10</td>
+<td style="text-align:center">0.32</td>
+<td style="text-align:center">0.53</td>
+</tr>
+<tr>
+<td>Risk</td>
+<td style="text-align:center">0.22</td>
+<td style="text-align:center">0.20</td>
+<td style="text-align:center">0.24</td>
+<td style="text-align:center">0.21</td>
+<td style="text-align:center">0.21</td>
+</tr>
+<tr>
+<td></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+</tbody>
+</table>
+<h2 id="capital-market-line-and-the-tangency-portfolio">Capital market line and the tangency portfolio</h2>
+<p>Investors can add a risk free asset to improve the performance of
+their portfolio. A risk free asset is an asset with a fixed return
+\(R_f\) that might be selected by investors together with a combination
+of \(N\) risky assets as before. On the efficient frontier all
+portfolios comprises of only risky assets. Adding the risk-free asset
+implies that the weights of risky assets do not necessarily sum up to
+one, as the difference is invested in the risk free asset. Therefore,
+both risky and risk-free assets contributes to the expected return of
+the portfolio:</p>
+<p>\begin{align*}
+\mu_p=&amp;\boldsymbol w^T\boldsymbol\mu+(1-\boldsymbol w^T\boldsymbol 1)R_f\\<br>
+\end{align*}</p>
+<p>However, the overall portfolio risk depends only on the risky assets,
+since the risk free asset has zero variance and is independent of the
+risky assets.</p>
+<p>\begin{align*}
+\sigma_p=&amp;\boldsymbol w^T\Sigma\boldsymbol w
+\end{align*}</p>
+<p>Putting the risk and the return of the portfolio into risk minimization
+formulation gives:</p>
+<p>\[
+\min~\boldsymbol w^T\Sigma\boldsymbol w
+\]
+subject to
+\[
+\mu_0=\boldsymbol w^T\boldsymbol\mu+(1-\boldsymbol w^T\boldsymbol 1)R_f
+\]</p>
+<p>The optimization problem can again be solved by the method of Lagrange
+multipliers. The optimal portfolio weights are derived as follows:</p>
+<p>\begin{equation}
+\label{eq:wrf}
+\boldsymbol w=K\Sigma^{-1}(\boldsymbol\mu-R_f\boldsymbol 1)
+\end{equation}</p>
+<p>where
+\[
+K=\frac{\mu_0-R_f}{(\boldsymbol\mu-R_f\boldsymbol 1)^T\Sigma^{-1}(\boldsymbol\mu-R_f\boldsymbol 1)}=\frac{\mu_0-R_f}{AR_f^2-2R_fB+C}
+\]</p>
+<p>In order to illustrate the relation between the risk and the return,
+we can derive \(\sigma_0^2\) as a function of \(\mu_0\) using
+\eqref{eq:wrf}:</p>
+<p>\begin{equation*}
+\sigma_0^2=\boldsymbol w^T\Sigma\boldsymbol w=\frac{(\mu_0-R_f)^2}{(\boldsymbol\mu-R_f\boldsymbol 1)^T\Sigma^{-1}(\boldsymbol\mu-R_f\boldsymbol 1)}=\frac{(\mu_0-R_f)^2}{AR_f^2-2R_fB+C}
+\end{equation*}</p>
+<p>This time the expected return and its corresponding minimal risk lie
+on a line. For \(\mu_0\ge R_f\):</p>
+<p>\begin{equation}
+\label{eq:cml}
+\sigma_0=\frac{\mu_0-R_f}{\sqrt{(\boldsymbol\mu-R_f\boldsymbol 1)^T\Sigma^{-1}(\boldsymbol\mu-R_f\boldsymbol 1)}}=\frac{\mu_0-R_f}{\sqrt{AR_f^2-2R_fB+C}}
+\end{equation}</p>
+<p>There are two specially interesting portfolios on line
+\eqref{eq:cml}. The portfolio with zero risk coincides with \(\mu_0\)
+being \(R_f\), which contains only the risk free asset. On the other
+side, there is a portfolio comprising merely the risky assets. Because
+it only includes the risky assets, it must also lie on the efficient
+frontier, represented by \eqref{eq:ef}. Therefore, this portfolio is
+located on the intersection between \eqref{eq:ef} and
+\eqref{eq:cml}. In addition, it can be shown that \eqref{eq:cml} is a
+tangent line to \eqref{eq:ef}. The portfolio at the intersection point
+is thereby called <em>tangancy portfolio</em>. Under certain condition (Fama
+1970), it is also named as <a href="https://en.wikipedia.org/wiki/Market%5Fportfolio"><em>market portfolio</em></a>. Moreover, line
+\eqref{eq:cml} is referred to as the <em>Capital Market Line</em> (CML).</p>
+<p>To compute the tangency portfolio, it is enough to find the
+intersection between \eqref{eq:cml} and \eqref{eq:ef}. As explained
+before, the intersection embodies only the risky assets. Let
+\(\boldsymbol w_m\) be the market portfolio, then it holds that
+\(\boldsymbol w_m^T\boldsymbol 1=1\), as the weight of risk free asset is
+zero. Therefore:</p>
+<p>\[
+\boldsymbol w^T\boldsymbol 1=\left(K\Sigma^{-1}(\boldsymbol\mu-R_f\boldsymbol 1)\right)^T\boldsymbol 1=1\Rightarrow K=\frac{1}{\boldsymbol 1^T\Sigma(\boldsymbol\mu-R_f\boldsymbol 1)}
+\]</p>
+<p>And finally substituting \(K\) into \(\eqref{eq:wrf}\) gives the market
+portfolio:
+\[
+\boldsymbol w_m=\frac{\Sigma^{-1}(\boldsymbol\mu-R_f\boldsymbol 1)}{\boldsymbol 1^T\Sigma(\boldsymbol\mu-R_f\boldsymbol 1)}
+\]</p>
+<p>Furthermore, putting \(\boldsymbol w_m\) into \(\mu_0=\boldsymbol
+w_m^T\boldsymbol\mu\) and \(\sigma_0=\boldsymbol w_m^T\Sigma\boldsymbol
+w_m\) gives:</p>
+<p>\begin{align*}
+\mu_0=&amp;\frac{C-BR_f}{B-AR_f}\\\<br>
+\sigma_0=&amp;\frac{\sqrt{AR_f^2-2R_fB+C}}{B-AR_f}
+\end{align*}</p>
+<p>Now we can put all the formulas together to compute CML and the
+tangency portfolio:</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">math</span>
+rf <span style="color:#666">=</span> <span style="color:#666">0.05</span>
+D<span style="color:#666">=</span>A<span style="color:#666">*</span>rf<span style="color:#666">*</span>rf<span style="color:#666">-</span><span style="color:#666">2</span><span style="color:#666">*</span>rf<span style="color:#666">*</span>B<span style="color:#666">+</span>C
+sigma_rf<span style="color:#666">=</span>(mu0<span style="color:#666">-</span>rf)<span style="color:#666">/</span>math<span style="color:#666">.</span>sqrt(D)
+w_m<span style="color:#666">=</span>sigma_inv<span style="">@</span>(mu <span style="color:#666">-</span> rf)<span style="color:#666">/</span>(all_ones<span style="color:#a2f">@sigma</span><span style="">@</span>(mu <span style="color:#666">-</span> rf))
+mu_t<span style="color:#666">=</span>(C<span style="color:#666">-</span>B<span style="color:#666">*</span>rf)<span style="color:#666">/</span>(B<span style="color:#666">-</span>A<span style="color:#666">*</span>rf)
+sigma_t<span style="color:#666">=</span>math<span style="color:#666">.</span>sqrt(D)<span style="color:#666">/</span>(B<span style="color:#666">-</span>A<span style="color:#666">*</span>rf)
+</code></pre></div><p>The result is illustrated in the following figure. It can be observed
+that a portfolio on the CML outperforms the corresponding portfolio on
+the efficient frontier with the same risk level. That is to say,
+introducing the risk free asset improves the performance of the
+portfolio.</p>
+<figure class="diag">
+    <img src="https://hhatefi.github.io/ox-hugo/ef_cml.svg"
+         alt="Figure 2: Efficient frontier with capital market line"/> <figcaption>
+            <p>Figure 2: Efficient frontier with capital market line</p>
+        </figcaption>
+</figure>
+
+<h2 id="conclusions">Conclusions</h2>
+<p>Modern portfolio theory utilizes mean-variance optimization to
+construct portfolios by offering a trade-off between their risk and
+their return. The optimization problem can be formulated in different
+ways. Risk minimization formulation computes the minimum risk
+portfolio for a desired expected return. Including a risk free asset
+into asset universe can improve portfolio selection.</p>
+<h2 id="references">References</h2>
+<p>Fabozzi et al. &ldquo;Quantitative Equity Investing: Techniques and
+Strategies,&rdquo; John Wiley &amp; Sons (2010)</p>
+<p>Eugene F. Fama, &ldquo;Efficient Capital Markets: A Review of Theory and
+Empirical Work,&rdquo; Journal of Finance, 25 (1970), pp. 383-417</p>
+
+
+</article>
+
+
+<section class="post-nav">
+    <ul>
+        
+        <li>
+            <a href="https://hhatefi.github.io/posts/zipline_bundles/"><i class="fa fa-chevron-circle-left"></i> A Helper for zipline data bundles</a>
+        </li>
+        
+        
+    </ul>
+</section>
+  
+    
+    
+  
+
+
+
+
+
+</main>
+    <footer>
+        <h6>© 2020 - hhatefi |
+            Rendered by <a href="https://gohugo.io" title="Hugo">Hugo</a> |
+            <a href="https://hhatefi.github.ioindex.xml">Subscribe </a></h6>
+    </footer>
+</div>
+<script src="https://hhatefi.github.io/js/scripts.js"></script>
+
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-178629578-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-178629578-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+
+</html>
+
