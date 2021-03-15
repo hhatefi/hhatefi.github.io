@@ -1,0 +1,345 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <title>Finding The Best Rate in Forex Graph - hhatefi</title>
+  <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="The HTML5 Herald" />
+<meta name="author" content="Hassan Hatefi" /><meta property="og:title" content="Finding The Best Rate in Forex Graph" />
+<meta property="og:description" content="Currencies are traded in pairs by simultaneously buying one and selling the other. Each pair is associated with an exchange rate, which indicates the relative price of the first currency with respect to the second one." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://hhatefi.github.io/posts/forex_graph/" />
+<meta property="article:published_time" content="2021-03-15T20:32:00+01:00" />
+<meta property="article:modified_time" content="2021-03-15T20:32:00+01:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Finding The Best Rate in Forex Graph"/>
+<meta name="twitter:description" content="Currencies are traded in pairs by simultaneously buying one and selling the other. Each pair is associated with an exchange rate, which indicates the relative price of the first currency with respect to the second one."/>
+
+<meta name="generator" content="Hugo 0.80.0" />
+    
+    <script src="https://hhatefi.github.io/js/mathjax-config.js" defer></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://hhatefi.github.io/fontawesome/css/all.min.css" />
+  
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda" />
+  
+  
+  <link rel="stylesheet" type="text/css" href="https://hhatefi.github.io/css/styles.css" />
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-178629578-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-178629578-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+<body>
+  <div id="container">
+    <header>
+      <h1>
+                <a href="https://hhatefi.github.io/">hhatefi</a>
+            </h1>
+
+      <ul id="social-media">
+             <li>
+               <a href="https://github.com/hhatefi" title="GitHub">
+               <i class="fab fa-github fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="https://linkedin.com/in/hassan-hatefi" title="LinkedIn">
+               <i class="fab fa-linkedin fa-lg"></i>
+               </a>
+             </li>
+      </ul>
+      
+      <p><em>Curious about computing, modeling and analysis</em></p>
+      
+    </header>
+
+    
+<nav>
+    <ul>
+        
+    </ul>
+</nav>
+
+
+    <main>
+
+
+
+
+<article>
+
+    <h1>Finding The Best Rate in Forex Graph</h1>
+
+    
+      <aside>
+    <ul>
+        <li>
+            <time class="post-date" datetime="2021-03-15T20:32:00&#43;01:00">Mar 15, 2021</time>
+        </li>
+        
+        
+
+        
+
+        <li>6 minutes read</li>
+    </ul>
+</aside>
+
+    
+
+    
+
+
+    <p>Currencies are traded in pairs by simultaneously buying one and
+selling the other. Each pair is associated with an exchange rate,
+which indicates the relative price of the first currency with respect
+to the second one. For instance pair <code>EUR_USD</code> with rate 1.2 shows
+every Euro values 1.2 US dollar. Let say you want to change your Euros
+to US dollars and want to get the best rate possible. One way is of
+course to change them directly to dollar with rate 1.2. You require to
+submit only one trade. But maybe, you get a better rate if you first
+sell the Euros and get some Japanese yens and then change the yens to
+US dollar. This includes two trades, which imposes the uncertainty
+coming from two order executions. In this post, I explain how to get
+the best rate between two currencies, possibly through some
+intermediate currency exchanges when the maximum number of trades is
+restricted.</p>
+<h2 id="formulation-and-modeling">Formulation and modeling</h2>
+<p>We are given a list of currency pairs with their associated bid and
+ask rates. For each pair, the bid rate is the price of selling one
+unit of the first currency with respect to the second. The ask rate is
+similar but for buying one unit of the first currency. With both bid
+and ask rates given, it is possible to model tradable currencies as a
+directed graph. In this graph, currencies are modeled as nodes which
+are connected by edges, provided that they are directly tradable. That
+is to say, a pair between currency \(C_1\) and \(C_2\) with bid rate \(b\)
+and ask rate \(a\) is simply modeled by an edge from \(C_1\) to \(C_2\) with
+weight \(b\) and an edge from \(C_2\) to \(C_1\) with weight
+\(\frac{1}{a}\). As an example, assume <code>EUR_USD</code> is traded with bid rate
+1.2 and ask rate 1.4, then the edge between <code>EUR</code> to <code>USD</code> has weight
+1.2 and the edge between <code>USD</code> to <code>EUR</code> has weight
+\(\frac{1}{1.4}=\frac{5}{7}\). The following example shows how to
+construct the graph, given the list of currency pairs.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">pair</th>
+<th style="text-align:center">bid</th>
+<th style="text-align:center">ask</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">EUR_USD</td>
+<td style="text-align:center">1.21048</td>
+<td style="text-align:center">1.21090</td>
+</tr>
+<tr>
+<td style="text-align:center">EUR_GBP</td>
+<td style="text-align:center">0.87052</td>
+<td style="text-align:center">0.87113</td>
+</tr>
+<tr>
+<td style="text-align:center">EUR_CHF</td>
+<td style="text-align:center">1.07987</td>
+<td style="text-align:center">1.08110</td>
+</tr>
+<tr>
+<td style="text-align:center">GBP_USD</td>
+<td style="text-align:center">1.38998</td>
+<td style="text-align:center">1.39058</td>
+</tr>
+<tr>
+<td style="text-align:center">GBP_CHF</td>
+<td style="text-align:center">1.23988</td>
+<td style="text-align:center">1.24138</td>
+</tr>
+<tr>
+<td style="text-align:center">USD_CHF</td>
+<td style="text-align:center">0.89199</td>
+<td style="text-align:center">0.89280</td>
+</tr>
+</tbody>
+</table>
+<p>The result is a directed graph with four nodes and 12 edges. Since all
+currencies are directly tradable, the graph is complete, i.e. each
+currency is connected to all others via a direct edge. The edges are,
+depending on their direction, associated either with the bid or with
+the ask rate. Their weights are computed as explained above.</p>
+<figure class="diag">
+    <img src="https://hhatefi.github.io/ox-hugo/forex_graph.svg"
+         alt="Figure 1: The graph associated with the above table"/> <figcaption>
+            <p>Figure 1: The graph associated with the above table</p>
+        </figcaption>
+</figure>
+
+<p>Now assume we want to compute the rate from EUR to GBP through USD as
+the intermediate currency. That is equivalent to taking path
+\(\mathrm{EUR}\rightarrow\mathrm{USD}\rightarrow\mathrm{GBP}\) in the
+forex graph. The rate is computed by multiplying the rates of each
+edge along the path, which is \(0.87048=1.21048\times0.71912\). This
+value is the <em>multiplicative distance</em> from EUR to GBP via USD in the
+graph. In general, the rate between two currencies through a certain
+path coincides with multiplicative distance between them. The
+multiplicative distance from \(c_1\) to \(c_n\) through path
+\(c_1\rightarrow c_2\rightarrow\cdots\rightarrow c_n\) is computed by</p>
+<p>\begin{equation*}
+\prod_{i=1}^{n-1}w(c_i,c_{i+1})
+\end{equation*}</p>
+<p>where \(w(c_i,c_{i+1})\) is the weight of the edge from \(c_i\) to
+\(c_{i+1}\), i.e. the direct rate of selling \(c_i\) and buying
+\(c_{i+1}\). This path composed of \(n-1\) consecutive trades. In practice
+we may want to restrict the number of trades, i.e. considering only
+paths up to a certain length. Each of those paths gives one rate, with
+the maximum one being the best rate. Formally speaking, for a given
+currency \(c\) and the maximum number of trades \(T\), we want to compute
+the maximum rate from \(c\) to any other currency by doing at most \(T\)
+trades. This is equivalent to the maximum multiplicative distance from
+\(c\) to any other currency considering the paths with length of at most
+\(T\).</p>
+<h2 id="dynamic-programming">Dynamic programming</h2>
+<p>The maximum multiplicative distance can be computed in a similar way
+as the shortest path in a graph. However, the length of paths, which
+is equivalent to the number of trades, is bounded. That is not
+usually the case in classical variations of <a href="https://en.wikipedia.org/wiki/Shortest%5Fpath%5Fproblem">shortest path
+problem</a>. Moreover, the shortest path is indeed the minimum additive
+distance, which is different than <em>the maximum bounded multiplicative
+distance</em> needed here. In order to adapt shortest path computation to
+bounded multiplicative distance maximization, I use a variant of
+<a href="https://en.wikipedia.org/wiki/Bellman%E2%80%93Ford%5Falgorithm">Bellman-Ford algorithm</a>. The core of Bellman-Ford algorithm is a
+recursive formula which updates the shortest path iteratively. This
+formula is required to be adapted to multiplicative distance
+maximization as follows:</p>
+<p>\begin{equation}
+\label{eq:rec}
+R_c(d,t+1)=\max_{(u,d)\in E}\left\{R_c(u,t)*w(u,d)\right\}
+\end{equation}</p>
+<p>where \(R_c(d,t)\) is the maximum multiplicative distance from \(c\) to
+\(d\) over paths of length \(t\) and \(E\) is the set of edges in the forex
+graph. The idea is to extend the maximum multiplicative distance over
+paths of length \(t\) by attaching a single edge to it. It establishes
+the maximum multiplicative distance over paths of length \(t+1\). In
+trading world, we find all currencies that can be directly exchanged
+to \(d\), use them as the middle currency and choose the one that gives
+the best rate. The middle currency that gives the best result is the
+<em>t-th vertex</em> on the optimal path. By storing the middle currencies in
+each iteration, we can construct the optimal path. An implementation
+of the algorithm in python is given below.</p>
+<script type="application/javascript" src="https://gist.github.com/hhatefi/887106de7aeb458d61c456fd4286d724.js"></script>
+
+<p>The algorithm is basically computes the best rates according to the
+recursion described by \(\eqref{eq:rec}\). This operations is repeated
+\(T\) times, each time for all currencies in the graph. Therefore, the
+complexity of the algorithm is quadratic in the number of currencies
+and linear in the number of trades.</p>
+<p>The forex graph is passed as variable <code>graph</code>, which stores the
+adjacency matrix of the graph. That is to say, <code>graph[c][d]</code> is the
+rate of exchanging currency <code>c</code> to <code>d</code>. Other inputs are the source
+currency <code>src</code> and the maximum number of trades <code>T</code>. As the output, it
+returns two tables both with <code>T+1</code> rows. Each column is associated
+with a currency. The rates are stored in <code>dist</code> table, where
+<code>dist[t,c]</code> stores the best rate from <code>src</code> to <code>c</code> by doing <code>t</code>
+trades. The optimal path i.e. the middle currencies are stored in
+<code>pre</code>. For example, <code>pre[t,c]</code> indicates the middle currency right
+before <code>c</code> along the optimal path from <code>src</code> to <code>c</code>.</p>
+<h2 id="conclusions">Conclusions</h2>
+<p>Forex trading rates can be aggregated and modeled by a graph. Doing so
+enables us to conduct certain analysis on the forex graph in order to
+answer some questions in the trading world. As an example, we have
+seen that an adaptation of shortest path algorithm can be used for
+computing the maximum rate between two currencies when there is an
+upper bound on the number of trades.</p>
+
+
+</article>
+
+
+<section class="post-nav">
+    <ul>
+        
+        <li>
+            <a href="https://hhatefi.github.io/posts/portfolio_opt/"><i class="fa fa-chevron-circle-left"></i> Portfolio Optimization</a>
+        </li>
+        
+        
+    </ul>
+</section>
+  
+    
+    
+  
+
+
+
+
+
+</main>
+    <footer>
+        <h6>© 2020 - hhatefi |
+            Rendered by <a href="https://gohugo.io" title="Hugo">Hugo</a> |
+            <a href="https://hhatefi.github.ioindex.xml">Subscribe </a></h6>
+    </footer>
+</div>
+<script src="https://hhatefi.github.io/js/scripts.js"></script>
+
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-178629578-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-178629578-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+
+</html>
+
