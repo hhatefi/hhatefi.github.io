@@ -1,0 +1,300 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <title>Testing Trading Strategies using Binance testnet API - hhatefi</title>
+  <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="The HTML5 Herald" />
+<meta name="author" content="Hassan Hatefi" /><meta property="og:title" content="Testing Trading Strategies using Binance testnet API" />
+<meta property="og:description" content="Algo traders most often test their strategies before jumping into live trading. Backtesting certainly helps to evaluate and to estimate the performance and the risk of trading strategies. However, it is often required to examine trade strategies using a demo account with virtual money, as past performance is no guarantee of future results." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://hhatefi.github.io/posts/binance_testnet/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-06-17T22:28:00&#43;02:00" />
+<meta property="article:modified_time" content="2021-06-17T22:28:00&#43;02:00" />
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Testing Trading Strategies using Binance testnet API"/>
+<meta name="twitter:description" content="Algo traders most often test their strategies before jumping into live trading. Backtesting certainly helps to evaluate and to estimate the performance and the risk of trading strategies. However, it is often required to examine trade strategies using a demo account with virtual money, as past performance is no guarantee of future results."/>
+
+<meta name="generator" content="Hugo 0.83.1" />
+    
+    <script src="https://hhatefi.github.io/js/mathjax-config.js" defer></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://hhatefi.github.io/fontawesome/css/all.min.css" />
+  
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda" />
+  
+  
+  <link rel="stylesheet" type="text/css" href="https://hhatefi.github.io/css/styles.css" />
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-178629578-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-178629578-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+<body>
+  <div id="container">
+    <header>
+      <h1>
+                <a href="https://hhatefi.github.io/">hhatefi</a>
+            </h1>
+
+      <ul id="social-media">
+             <li>
+               <a href="https://github.com/hhatefi" title="GitHub">
+               <i class="fab fa-github fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="https://linkedin.com/in/hassan-hatefi" title="LinkedIn">
+               <i class="fab fa-linkedin fa-lg"></i>
+               </a>
+             </li>
+      </ul>
+      
+      <p><em>Curious about computing, modeling and analysis</em></p>
+      
+    </header>
+
+    
+<nav>
+    <ul>
+        
+    </ul>
+</nav>
+
+
+    <main>
+
+
+
+
+<article>
+
+    <h1>Testing Trading Strategies using Binance testnet API</h1>
+
+    
+      <aside>
+    <ul>
+        <li>
+            <time class="post-date" datetime="2021-06-17T22:28:00&#43;02:00">Jun 17, 2021</time>
+        </li>
+        
+        
+
+        
+
+        <li>5 minute read</li>
+    </ul>
+</aside>
+
+    
+
+    
+
+
+    <p>Algo traders most often test their strategies before jumping into live
+trading. Backtesting certainly helps to evaluate and to estimate the
+performance and the risk of trading strategies. However, it is often
+required to examine trade strategies using a demo account with virtual
+money, as <em>past performance is no guarantee of future results</em>. In
+this article, I focus on cryptocurrency trading in <a href="https://www.binance.com">Binance</a> and explain
+how to test trading strategies there using a demo account.</p>
+<h2 id="introduction">Introduction</h2>
+<p>Binance provides test platforms for <a href="https://testnet.binance.vision/">spot</a>, <a href="https://testnet.binancefuture.com/">future</a> and <a href="https://testnet.binanceops.com/">vanilla
+options</a>. Depending on the type of trading, any of these platforms can
+be employed to emulate strategies. In this post, I focus on spot
+trading and explain with an example how to use it on binance testnet
+platform. Note that there is one limitation of spot testnet platform
+currently, that is it resets the positions roughly every month. That
+might be problematic for low-frequency trading strategies. The
+advantage is, thanks to <a href="https://github.com/sammchardy/python-binance"><code>python-binance</code></a>, the implemented strategy on
+testnet platform can be directly used for real live spot trading
+simply by changing the API key and the secret!</p>
+<p>Before starting with the implementation, the environment must be set
+up. We need python 3 with package <a href="https://github.com/sammchardy/python-binance"><code>python-binance</code></a>, an API key and an
+API secret to establish connection to the binance testnet. First,
+package <a href="https://github.com/sammchardy/python-binance"><code>python-binance</code></a> is required to be installed. In a
+development environment with python 3, this can be done by:</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">pip install python<span style="color:#666">-</span>binance
+</code></pre></div><p>The next step is to log into <a href="https://testnet.binance.vision">spot testnet platform</a>. To do this, at the
+time of writing this post, it is required to have a github
+account. After login, click on <code>Generate HMAC_SHA256 Key</code> to create an
+API key and secret and then save them for later to be used in the
+algorithm. That is all we need.</p>
+<h2 id="strategy-implementation">Strategy implementation</h2>
+<p>Now it is the time to implement a simple strategy, which is the &ldquo;hello
+world&rdquo; trading algorithm <em>moving average crossover</em>. The idea is to
+keep track of moving price average of an asset for a long- and a
+short-term period, then, use these values to determine when to enter
+and exit the market. When the short-term moving average goes above the
+long-term moving average we will go long; otherwise we go short, of
+course if we hold a position in the asset. The following parameters
+are defined for the strategy:</p>
+<ul>
+<li><code>g_symbol</code> is the symbol name of the asset,</li>
+<li><code>g_cycle</code> is the operating cycle of the algorithm in seconds, that
+means every <code>g_cycle</code> second(s) the algorithm takes the most recent
+asset price, updates the moving averages and submits orders if any,</li>
+<li><code>g_longterm</code> is the number of cycles of the long-term moving
+average. For instance if it equals 50 with <code>g_cycle</code> being 60, the
+average over the last 50 minutely prices will be computed as the
+long-term moving average,</li>
+<li><code>g_shortterm</code> is the same as <code>g_longterm</code> but for the short-term
+moving average,</li>
+<li><code>g_quantity</code> is the number of shares of the asset in buy and sell
+orders.</li>
+</ul>
+<p>The complete implementation of the algorithm comes below. The code
+block to define all of the parameters is located between line 4 to 9.</p>
+<script type="application/javascript" src="https://gist.github.com/hhatefi/6eedc0d84ef8d65d31b8f5f05426ffb2.js"></script>
+
+<p>The logic of the algorithm is implemented in <code>SmaCrossOver</code> class. The
+class also handles establishing and closing the connection to the
+binance testnet platform. Moreover, it continuously fetches the
+current price of the asset to be used for computing the short- and the
+long-term moving averages. The class handles its requests to binance
+platform in an asynchronous manner. That is why, all of its method
+definitions are followed by <code>async</code> keyword. It implies that the
+methods can operate concurrently, specially if the response to a
+request in a method is not ready yet, it does not block the execution
+of the other methods. For instance, while <code>fetch_price</code> should wait to
+get the latest price of the asset, the execution can switch to <code>run</code>
+to update moving averages on already available price data. This way
+leads to making better use of CPU cycles by avoiding unnecessary
+waiting time. The two main methods of the class are explained in
+detail.</p>
+<ul>
+<li>
+<p><code>fetch_price</code> uses websocket to fetch price information of the asset
+continuously using method <a href="https://python-binance.readthedocs.io/en/latest/binance.html"><code>symbol_book_ticker_socket</code></a> of class
+<code>BinanceSocketManager</code>. The price information contains the current
+price and the quantity of the asset available for sell (bid) or buy
+(ask). This information is actually the head item in the
+corresponding order book, which is stored in <code>self._price_info</code> as a
+dictionary:</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">{
+  <span style="color:#b44">&#39;u&#39;</span>: <span style="color:#666">4751315</span>,        <span style="color:#080;font-style:italic"># order book updateId</span>
+  <span style="color:#b44">&#39;s&#39;</span>: <span style="color:#b44">&#39;BNBUSDT&#39;</span>,      <span style="color:#080;font-style:italic"># symbol name</span>
+  <span style="color:#b44">&#39;b&#39;</span>: <span style="color:#b44">&#39;277.50000000&#39;</span>, <span style="color:#080;font-style:italic"># best bid price</span>
+  <span style="color:#b44">&#39;B&#39;</span>: <span style="color:#b44">&#39;0.04000000&#39;</span>,   <span style="color:#080;font-style:italic"># best bid quantity</span>
+  <span style="color:#b44">&#39;a&#39;</span>: <span style="color:#b44">&#39;370.00000000&#39;</span>, <span style="color:#080;font-style:italic"># best ask price</span>
+  <span style="color:#b44">&#39;A&#39;</span>: <span style="color:#b44">&#39;0.87000000&#39;</span>    <span style="color:#080;font-style:italic"># best ask quantity</span>
+}
+</code></pre></div></li>
+<li>
+<p><code>run</code> executes the algorithm. Each cycle, it gets the newest price
+data, which are fetched by <code>fetch_price</code> and computes the moving
+averages. At the beginning the algorithm waits for the first
+<code>g_longterm</code> price ticks to come such that it has enough data points
+to compute the moving averages. Afterwards, in each cycle it updates
+the moving averages, then compares them and submits the appropriate
+order if they cross each others. It is done between line 54 to 68.</p>
+</li>
+</ul>
+<p>Now it is the time to put all the pieces together to execute the
+algorithm, which is done in function <code>main</code>. It creates an instance of
+class <code>SmaCrossOver</code>, which needs the API key and the API secret
+generated by binance testnet platform. Note that one can also pass
+those from binance spot platform and set <code>testnet</code> to <code>False</code> to go
+live with real money instead of virtual one. After creating an
+instance of <code>SmaCrossOver</code>, the function executes <code>fetch_price</code> and
+<code>run</code> methods concurrently using <code>async.gather</code> in line 84, which
+actually runs the strategy.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Binance provides platforms to test trading algorithms with virtual
+money. This enables an strategy to be evaluated in a setting that is
+very close to the real trading environment with live price
+data. Testnet platform is well supported by <code>python-binance</code> package.
+The implemented algorithm can be used for real live trading only by
+changing the API key and secret and resetting a flag.</p>
+
+
+</article>
+
+
+<section class="post-nav">
+    <ul>
+        
+        <li>
+            <a href="https://hhatefi.github.io/posts/forex_graph/"><i class="fa fa-chevron-circle-left"></i> Finding The Best Rate in Forex Graph</a>
+        </li>
+        
+        
+    </ul>
+</section>
+  
+    
+    
+  
+
+
+
+
+
+</main>
+    <footer>
+        <h6>© 2020 - hhatefi |
+            Rendered by <a href="https://gohugo.io" title="Hugo">Hugo</a> |
+            <a href="https://hhatefi.github.ioindex.xml">Subscribe </a></h6>
+    </footer>
+</div>
+<script src="https://hhatefi.github.io/js/scripts.js"></script>
+
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-178629578-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-178629578-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+
+</html>
+
