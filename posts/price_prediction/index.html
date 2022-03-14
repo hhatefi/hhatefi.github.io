@@ -1,0 +1,331 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <title>From echo cancellation to price prediction - hhatefi</title>
+  <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="The HTML5 Herald" />
+<meta name="author" content="Hassan Hatefi" /><meta property="og:title" content="From echo cancellation to price prediction" />
+<meta property="og:description" content="Echo cancellation is a technique to remove acoustic echo from audio signal. The procedure is generally applicable to any signal, for instance price time-series of an asset. This post prooses that the price of an asset at any moment can be seen as the echo of its prices at some previous moments." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://hhatefi.github.io/posts/price_prediction/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-11-05T22:38:00+01:00" />
+<meta property="article:modified_time" content="2021-11-05T22:38:00+01:00" />
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="From echo cancellation to price prediction"/>
+<meta name="twitter:description" content="Echo cancellation is a technique to remove acoustic echo from audio signal. The procedure is generally applicable to any signal, for instance price time-series of an asset. This post prooses that the price of an asset at any moment can be seen as the echo of its prices at some previous moments."/>
+
+<meta name="generator" content="Hugo 0.92.2" />
+    
+    <script src="https://hhatefi.github.io/js/mathjax-config.js" defer></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://hhatefi.github.io/fontawesome/css/all.min.css" />
+  
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda" />
+  
+  
+  <link rel="stylesheet" type="text/css" href="https://hhatefi.github.io/css/styles.css" />
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-178629578-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-178629578-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+<body>
+  <div id="container">
+    <header>
+      <h1>
+                <a href="https://hhatefi.github.io/">hhatefi</a>
+            </h1>
+
+      <ul id="social-media">
+             <li>
+               <a href="https://github.com/hhatefi" title="GitHub">
+               <i class="fab fa-github fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="https://linkedin.com/in/hassan-hatefi" title="LinkedIn">
+               <i class="fab fa-linkedin fa-lg"></i>
+               </a>
+             </li>
+      </ul>
+      
+      <p><em>Curious about computing, modeling and analysis</em></p>
+      
+    </header>
+
+    
+<nav>
+    <ul>
+        
+    </ul>
+</nav>
+
+
+    <main>
+
+
+
+
+<article>
+
+    <h1>From echo cancellation to price prediction</h1>
+
+    
+      <aside>
+    <ul>
+        <li>
+            <time class="post-date" datetime="2021-11-05T22:38:00&#43;01:00">Nov 5, 2021</time>
+        </li>
+        
+        
+
+        
+
+        <li>5 minute read</li>
+    </ul>
+</aside>
+
+    
+
+    
+
+
+    <p>Echo cancellation is a technique to remove acoustic echo from audio
+signal. The procedure is generally applicable to any signal, for
+instance price time-series of an asset. This post prooses that the
+price of an asset at any moment can be seen as the echo of its prices
+at some previous moments. It then explains how price prediction
+problem can be formulated and solved using echo cancellation.</p>
+<h2 id="system-identification">System Identification</h2>
+<p>System identification is the process of identifying an unknown system
+through observing its input and its output. The unknown system in this
+context is assumed to be <a href="https://en.wikipedia.org/wiki/Linear%5Ftime-invariant%5Fsystem">linear time-invariant</a> and is specified by a
+<a href="https://en.wikipedia.org/wiki/Finite%5Fimpulse%5Fresponse">finite impulse response (FIR)</a>. It is here used to predict an asset
+price by looking into its price history. The FIR takes the price
+history as the input and generates an estimation future price. The
+block diagram of the price predictor is depicted below. The system is
+identifided through an adaptive process: it starts with an initial FIR
+and adapts it every time a new price tick comes.</p>
+<figure class="diag"><img src="https://hhatefi.github.io/ox-hugo/system_identification_block_diagram.svg"
+         alt="Figure 1: System Identification"/><figcaption>
+            <p>Figure 1: System Identification</p>
+        </figcaption>
+</figure>
+
+<p>In each adaptive process the FIR is updated as little as possible such
+that if the price history is applied to the new FIR, it still
+generates the exact price. Let \(L\) be the length of price history and
+\(p(n)\) be the price tick at time point \(n\) then</p>
+<p>\begin{equation*}
+\boldsymbol{p}(n)=\Big(p(n),p(n-1),\dotsc,p(n-L+1)\Big)^T
+\end{equation*}</p>
+<p>is a vector containing \(L\) recent price ticks. The objective is to find
+impuls response</p>
+<p>\begin{equation*}
+\boldsymbol{h}(n)=\Big(h_1(n),h_2(n),\dotsc,h_L(n)\Big)^T
+\end{equation*}</p>
+<p>such that it is as close as possible to the previous FIR,
+i.e. \(\boldsymbol{h}(n-1)\), and at the same time pefectly predicts the
+next price tick,
+i.e. \(\boldsymbol{h}^T(n)\boldsymbol{p}(n)=p(n+1)\). This can be
+formulated as the following optimization problem:</p>
+<p>\begin{equation}
+\label{eq:norm2}
+\min\quad\Big\|\boldsymbol{h}(n)-\boldsymbol{h}(n-1)\Big\|_2^2
+\end{equation}</p>
+<p>subject to</p>
+<p>\begin{equation}
+\label{eq:pred}
+\boldsymbol{h}^T(n)\boldsymbol{p}(n)=p(n+1).
+\end{equation}</p>
+<p>Using the method of Lagrange multiplier, it can be shown that</p>
+<p>\begin{equation}
+\label{eq:raw:nlms}
+\boldsymbol{h}(n)=\boldsymbol{h}(n-1)+\frac{e(n)\boldsymbol{p}(n)}{\boldsymbol{p}^T(n)\boldsymbol{p}(n)}
+\end{equation}</p>
+<p>where</p>
+<p>\begin{equation}
+\label{eq:prederr}
+e(n)=p(n+1)-\boldsymbol{h}^T(n-1)\boldsymbol{p}(n)
+\end{equation}</p>
+<p>This adaptive approach can be used to predict the price of an
+asset. The quality of prediction can be assessed by its convergence
+measured by \(\eqref{eq:norm2}\) and the prediction error estimated by
+\(\eqref{eq:prederr}\). When both of the criteria are small, the
+prediction is probably precise.</p>
+<h2 id="relation-to-echo-cancellation">Relation to echo cancellation</h2>
+<p>Echo cancellation is the process of removing echo in a signal, for
+example removing acoustic echo in a telephone call. A popular
+technique to cancel acoustic echo is to identify echo via system
+identification, the same approach which is used in this post for price
+prediction. To turn our price predictor to an echo canceler, it is
+only enough to fill \(\boldsymbol{p}(n)\) vector with the last \(L\) audio
+samples coming from the speaker instead of price ticks and replace
+\(p(n+1)\) with microphone signal in \(\eqref{eq:pred}\). Then,
+\(\eqref{eq:raw:nlms}\) identifies the FIR of an acoustic echo
+canceler. This approach to echo cancellation is referred to as
+<em>normalised least mean square</em> method, which will be discussed in the
+next section. That is to say, the system which predicts the current
+price actually produces an echo of past prices that best matches the
+current priced.</p>
+<h2 id="normalized-least-mean-square">Normalized least mean square</h2>
+<p>A price predictor, an echo canceler, or any other unknown system can
+be identified by <em>normilized least mean square</em> (NLMS) method. The
+procedure follows the computation given by \(\eqref{eq:raw:nlms}\) and
+\(\eqref{eq:prederr}\). It takes the signal value at each time point,
+computes the predicted system output, compares it with the real output
+to estimate error and then accordingly updates the impule
+response. NLMS however adds two parameters to have finer control over
+recursion \(\eqref{eq:raw:nlms}\). How much the FIR is updated is also
+controlled by step size (\(\alpha\)) and regularization parameter
+(\(\delta\)).</p>
+<p>\begin{equation}
+\label{eq:nlms}
+\boldsymbol{h}(n)=\boldsymbol{h}(n-1)+\frac{\alpha e(n)\boldsymbol{p}(n)}{\boldsymbol{p}^T(n)\boldsymbol{p}(n)+\delta}
+\end{equation}</p>
+<p>Bigger step size causes \(\eqref{eq:nlms}\) to converge faster, likely
+with higher error estimation error. To decrease error, smaller step
+size should be taken, which subsequently requires more iterations
+until convergence. For numerical stability, \(\alpha\) must lie between
+0 and 2. Regularization parameter \(\delta\) helps system identification
+performing well in case the signal is noisy.</p>
+<h2 id="python-implementation">Python implementation</h2>
+<p>The implemention of NLMS algorithm on price data is
+straightforward. It is enough to update the impule response
+iteratively according to \(\eqref{eq:nlms}\). The algorithm has three
+parameters:</p>
+<ul>
+<li>\(L\) is the length of price history</li>
+<li>\(\alpha\) is the step size</li>
+<li>\(\delta\) is the regularization parameter</li>
+</ul>
+<p>These parameters are passed while constructing an object of
+<code>system_identifier</code>. This class provides system identification
+functionality.</p>
+<p>{{&lt; gist hhatefi 85bd1bc50f229ad892d8e143710f5ef3 &gt;}}</p>
+<p>In this class, <code>update_filter</code> takes the new price value, computes the
+error and updates the FIR via \(\eqref{eq:prederr}\) and
+\(\eqref{eq:nlms}\), respectively. At the end it returns the predicted
+price and the absolute value of update vector i.e.</p>
+<p>\begin{equation}
+\label{eq:h:diff}
+\Big\|\boldsymbol{h}(n)-\boldsymbol{h}(n-1)\Big\|_2^2
+\end{equation}</p>
+<p>This is an indicator of convergence and together with the prediction
+error can be used to estimate the quantity of prediction.</p>
+<figure class="diag"><img src="https://hhatefi.github.io/ox-hugo/pred_result.svg"
+         alt="Figure 2: Prediction Result"/><figcaption>
+            <p>Figure 2: Prediction Result</p>
+        </figcaption>
+</figure>
+
+<p>To evaluate the algorithm, I use it to predict minutely price of
+bitcoin from 01.09.2021 to 12.09.2021. After running the algorithm, it
+takes some time for it to converge. Convergence means the estimated
+FIR does not fluctuate or change rapidly and thereby is stable for
+price prediction. The top diagram shows the convergence that is
+estimated by computing the distance between consecutive FIR as
+specified by \(\eqref{eq:h:diff}\). The lower values imply that the
+predicted FIR only needs to change very slightly. However, to judge
+the quality of convergence, we should look at the relative error in
+the bottom diagram. When both of these values are relatively small,
+the quality of prediction is good.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>This post is proposed an algorithm for asset price prediction based on
+system identification problem. The algorithm adapts continuously with
+price change and provides indicators for prediction error and
+convergence. The indicators jointly can demonstrate how precise the
+price estimation for the asset is.</p>
+
+
+</article>
+
+
+<section class="post-nav">
+    <ul>
+        
+        <li>
+            <a href="https://hhatefi.github.io/posts/binance_testnet/"><i class="fa fa-chevron-circle-left"></i> Testing Trading Strategies using Binance testnet API</a>
+        </li>
+        
+        
+    </ul>
+</section>
+  
+    
+    
+  
+
+
+
+
+
+</main>
+    <footer>
+        <h6>© 2020 - hhatefi |
+            Rendered by <a href="https://gohugo.io" title="Hugo">Hugo</a> |
+            <a href="https://hhatefi.github.ioindex.xml">Subscribe </a></h6>
+    </footer>
+</div>
+<script src="https://hhatefi.github.io/js/scripts.js"></script>
+
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-178629578-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-178629578-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+
+</html>
+

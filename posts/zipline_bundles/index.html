@@ -11,15 +11,15 @@
 <meta property="og:description" content="Data bundles in zipline feed trading strategies with price data during backtesting. Zipline comes with some data bundles including the one that downloads price data from quandl&rsquo;s wiki dataset. However, it is often necessary to employ custom data bundles, for example to fetch price of assets not provided by the existing data bundles." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://hhatefi.github.io/posts/zipline_bundles/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2020-09-06T22:30:47&#43;02:00" />
-<meta property="article:modified_time" content="2020-09-06T22:30:47&#43;02:00" />
+<meta property="article:published_time" content="2020-09-06T22:30:47+02:00" />
+<meta property="article:modified_time" content="2020-09-06T22:30:47+02:00" />
 
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="A Helper for zipline data bundles"/>
 <meta name="twitter:description" content="Data bundles in zipline feed trading strategies with price data during backtesting. Zipline comes with some data bundles including the one that downloads price data from quandl&rsquo;s wiki dataset. However, it is often necessary to employ custom data bundles, for example to fetch price of assets not provided by the existing data bundles."/>
 
-<meta name="generator" content="Hugo 0.83.1" />
+<meta name="generator" content="Hugo 0.92.2" />
     
     <script src="https://hhatefi.github.io/js/mathjax-config.js" defer></script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
@@ -154,12 +154,12 @@ to define a new bundle using the generic ingester in detail.</p>
 <h2 id="installation">Installation</h2>
 <p>There is a quick way to use or test the already mentioned <a href="#generic-ingester">data bundles</a>
 with zipline. The first step is to get the source from github:</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">git clone https://github.com/hhatefi/zipline_bundles
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">git clone https://github.com/hhatefi/zipline_bundles
 </code></pre></div><p>The repository comes with an <a href="https://github.com/hhatefi/zipline%5Fbundles/blob/master/install.py">installation script</a>, which can be used to
 add the data bundles to the zipline framework. Before using it, I
 assume there is already an environment with zipline installed and it
 is ready to be used. The installation is done by</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#a2f">cd</span> zipline_bundles
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#a2f">cd</span> zipline_bundles
 python3 installer.py
 </code></pre></div><p>The installer copies the following files:</p>
 <ul>
@@ -177,18 +177,18 @@ appropriate modules can be usually appended to <code>src_ing</code> list. The
 installation script can then be used to install the new bundle.</p>
 <h2 id="usage">Usage</h2>
 <p>The available bundles are listed by</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">zipline bundles
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">zipline bundles
 </code></pre></div><p>If the installation is done successfully, it will show new bundles
 <code>yahoo_csv</code>, <code>yahoo_direct</code> and <code>iex</code>.</p>
 <p><code>yahoo_csv</code> bundle takes data from csv files downloaded from <a href="https://finance.yahoo.com">yahoo
 finance</a>. Each file contains price data of a single asset and shall be
 named as <code>assert_name.csv</code>. The bundle reads all the csv files located
 in a directory given by environment variable <code>YAHOO_CSVDIR</code>:</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">YAHOO_CSVDIR</span><span style="color:#666">=</span>/path/to/csvdir zipline ingest -b yahoo_csv
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">YAHOO_CSVDIR</span><span style="color:#666">=</span>/path/to/csvdir zipline ingest -b yahoo_csv
 </code></pre></div><p><code>yahoo_direct</code> directly downloads price data from <a href="https://finance.yahoo.com">yahoo finance</a>. The
 bundle extracts asset names from environment variable <code>YAHOO_SYM_LST</code>,
 which holds a comma separated list of asset names, for example:</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">YAHOO_SYM_LST</span><span style="color:#666">=</span>SPY,AAPL zipline ingest -b yahoo_direct
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">YAHOO_SYM_LST</span><span style="color:#666">=</span>SPY,AAPL zipline ingest -b yahoo_direct
 </code></pre></div><p>gets price data of assets <code>SPY</code> and <code>AAPL</code>. The start and end date of
 price data ingestion can be set into variables <code>start_date</code> and
 <code>end_date</code>, respectively. The variables are passed to function
@@ -212,12 +212,12 @@ internal database. Most of the time for csv files, processing the
 column name is the only thing needs to be done. We also need to
 specify where the csv files are located. The registration of a csv
 data bundle looks as follows:</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">from</span> <span style="color:#00f;font-weight:bold">zipline.data.bundles</span> <span style="color:#a2f;font-weight:bold">import</span> register
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">from</span> <span style="color:#00f;font-weight:bold">zipline.data.bundles</span> <span style="color:#a2f;font-weight:bold">import</span> register
 <span style="color:#a2f;font-weight:bold">from</span> <span style="color:#00f;font-weight:bold">zipline.data.bundles.ingester</span> <span style="color:#a2f;font-weight:bold">import</span> csv_ingester
 register(
     <span style="color:#b44">&#39;yahoo_csv&#39;</span>,
     csv_ingester(<span style="color:#b44">&#39;YAHOO&#39;</span>,
-		 every_min_bar<span style="color:#666">=</span>False, <span style="color:#080;font-style:italic"># the price is daily</span>
+		 every_min_bar<span style="color:#666">=</span><span style="color:#a2f;font-weight:bold">False</span>, <span style="color:#080;font-style:italic"># the price is daily</span>
 		 csvdir_env<span style="color:#666">=</span><span style="color:#b44">&#39;YAHOO_CSVDIR&#39;</span>,
 		 csvdir<span style="color:#666">=</span><span style="color:#b44">&#39;/path/to/csv/dir&#39;</span>,
 		 index_column<span style="color:#666">=</span><span style="color:#b44">&#39;Date&#39;</span>,
@@ -247,7 +247,7 @@ Otherwise they are expected to be stored daily.</p>
 <li>
 <p><code>csvdir_env</code> is the name of the environment variable holding csv
 directory. It can be set, for instance, while ingesting price data:</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">YAHOO_CSV</span><span style="color:#666">=</span>/path/to/csvdir zipline ingest -b yahoo_csv
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">YAHOO_CSV</span><span style="color:#666">=</span>/path/to/csvdir zipline ingest -b yahoo_csv
 </code></pre></div><p>Zipline then searches for csv files inside <code>/path/to/csvdir</code>. The
 data bundle extracts the asset names from the filename by striping
 <code>csv</code> extension from the filename. For example, it considers
@@ -286,7 +286,7 @@ be registered and defined.</p>
 via IEX cloud API. The downloader is invoked by the ingester with
 appropriate parameters. It needs therefore to provide a specific
 signature.</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">from</span> <span style="color:#00f;font-weight:bold">pandas</span> <span style="color:#a2f;font-weight:bold">import</span> Timestamp
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">from</span> <span style="color:#00f;font-weight:bold">pandas</span> <span style="color:#a2f;font-weight:bold">import</span> Timestamp
 <span style="color:#a2f;font-weight:bold">from</span> <span style="color:#00f;font-weight:bold">iexfinance.stocks</span> <span style="color:#a2f;font-weight:bold">import</span> get_historical_data
 
 <span style="color:#a2f;font-weight:bold">def</span> <span style="color:#00a000">get_downloader</span>(start_date,
@@ -323,11 +323,11 @@ is stored as <code>iex.py</code> within <code>zipline.data.bundles</code> packag
 step is to register a new data bundle, which uses the downloader to
 fetch price data from IEX cloud. The registration is done within
 <code>extension.py</code>.</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">from</span> <span style="color:#00f;font-weight:bold">zipline.data.bundles.ingester</span> <span style="color:#a2f;font-weight:bold">import</span> direct_ingester
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">from</span> <span style="color:#00f;font-weight:bold">zipline.data.bundles.ingester</span> <span style="color:#a2f;font-weight:bold">import</span> direct_ingester
 <span style="color:#a2f;font-weight:bold">from</span> <span style="color:#00f;font-weight:bold">zipline.data.bundles</span> <span style="color:#a2f;font-weight:bold">import</span> iex
 register(<span style="color:#b44">&#39;iex&#39;</span>, <span style="color:#080;font-style:italic"># bundle&#39;s name</span>
 	 direct_ingester(<span style="color:#b44">&#39;IEX Cloud&#39;</span>,
-			 every_min_bar<span style="color:#666">=</span>False,
+			 every_min_bar<span style="color:#666">=</span><span style="color:#a2f;font-weight:bold">False</span>,
 			 symbol_list_env<span style="color:#666">=</span><span style="color:#b44">&#39;IEX_SYM_LST&#39;</span>, <span style="color:#080;font-style:italic"># the environemnt variable holding the comma separated list of asset names</span>
 			 downloader<span style="color:#666">=</span>iex<span style="color:#666">.</span>get_downloader(start_date<span style="color:#666">=</span><span style="color:#b44">&#39;2015-01-01&#39;</span>,
 						   end_date<span style="color:#666">=</span><span style="color:#b44">&#39;2020-01-01&#39;</span>
@@ -352,7 +352,7 @@ are daily prices.</p>
 <p><code>symbol_list_env</code> is the name of the environment variable holding a
 comma separated list of asset names. It can be set, for instance,
 while ingesting price data:</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">IEX_SYM_LST</span><span style="color:#666">=</span>SPY,AAPL,TWTR zipline ingest -b iex
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b8860b">IEX_SYM_LST</span><span style="color:#666">=</span>SPY,AAPL,TWTR zipline ingest -b iex
 </code></pre></div><p>Zipline then download data for assets <code>SPY</code>, <code>AAPL</code> and <code>TWTR</code>.</p>
 </li>
 <li>

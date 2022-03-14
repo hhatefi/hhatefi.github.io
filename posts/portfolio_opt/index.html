@@ -11,15 +11,15 @@
 <meta property="og:description" content="Modern portfolio theory provides a framework to address asset allocation problem and construct portfolios. The idea was first put forward by Harry Markowitz in 1952 and since then has been enhanced both in theory and practice and found its application in financial industry." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://hhatefi.github.io/posts/portfolio_opt/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-01-14T15:02:25&#43;01:00" />
-<meta property="article:modified_time" content="2021-01-14T15:02:25&#43;01:00" />
+<meta property="article:published_time" content="2021-01-14T15:02:25+01:00" />
+<meta property="article:modified_time" content="2021-01-14T15:02:25+01:00" />
 
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Portfolio Optimization"/>
 <meta name="twitter:description" content="Modern portfolio theory provides a framework to address asset allocation problem and construct portfolios. The idea was first put forward by Harry Markowitz in 1952 and since then has been enhanced both in theory and practice and found its application in financial industry."/>
 
-<meta name="generator" content="Hugo 0.83.1" />
+<meta name="generator" content="Hugo 0.92.2" />
     
     <script src="https://hhatefi.github.io/js/mathjax-config.js" defer></script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
@@ -170,7 +170,7 @@ minimization</em> formulation, where the portfolio risk is subject to
 minimization while its expected return is kept at a predefined level.
 \[ \min~\boldsymbol w^T \Sigma \boldsymbol w \] subject to</p>
 <p>\begin{align*}
-\boldsymbol w^T \boldsymbol u&amp;=\mu_0\\\<br>
+\boldsymbol w^T \boldsymbol u&amp;=\mu_0\\
 \boldsymbol w^T\boldsymbol 1&amp;=1
 \end{align*}</p>
 <p>where \(\boldsymbol 1=(1,1,\dotso,1)^T\) denotes all-one vector. The
@@ -225,7 +225,7 @@ will be straightforward. At first we pick up our universe, the set of
 all assets we want to invest in and then download their price
 data. The follwing python code uses <code>yfinance</code> package for this
 purpose.</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">yfinance</span> <span style="color:#a2f;font-weight:bold">as</span> <span style="color:#00f;font-weight:bold">yf</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">yfinance</span> <span style="color:#a2f;font-weight:bold">as</span> <span style="color:#00f;font-weight:bold">yf</span>
 <span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">numpy</span> <span style="color:#a2f;font-weight:bold">as</span> <span style="color:#00f;font-weight:bold">np</span>
 <span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">pandas</span> <span style="color:#a2f;font-weight:bold">as</span> <span style="color:#00f;font-weight:bold">pd</span>
 <span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">matplotlib.pyplot</span> <span style="color:#a2f;font-weight:bold">as</span> <span style="color:#00f;font-weight:bold">plt</span>
@@ -243,10 +243,10 @@ that are generally considered more precise and more stable. Package
 the covariance matrix. Here we use exponential moving average model
 for expected returns and exponential covariance for the covariance
 matrix.</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">mu<span style="color:#666">=</span>expected_returns<span style="color:#666">.</span>return_model(data, method<span style="color:#666">=</span><span style="color:#b44">&#39;ema_historical_return&#39;</span>)
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">mu<span style="color:#666">=</span>expected_returns<span style="color:#666">.</span>return_model(data, method<span style="color:#666">=</span><span style="color:#b44">&#39;ema_historical_return&#39;</span>)
 sigma<span style="color:#666">=</span>risk_models<span style="color:#666">.</span>risk_matrix(data, method<span style="color:#666">=</span><span style="color:#b44">&#39;exp_cov&#39;</span>)
 </code></pre></div><p>Now all the ingredients are ready to derive the efficient frontier.</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">matplotlib.pyplot</span> <span style="color:#a2f;font-weight:bold">as</span> <span style="color:#00f;font-weight:bold">plt</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">matplotlib.pyplot</span> <span style="color:#a2f;font-weight:bold">as</span> <span style="color:#00f;font-weight:bold">plt</span>
 <span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">math</span>
 
 sigma_inv<span style="color:#666">=</span>np<span style="color:#666">.</span>linalg<span style="color:#666">.</span>inv(sigma)
@@ -271,7 +271,7 @@ to portfolios that take higher risks. Selecting a portfolio with lower
 risk, on the other hand, decrease its performance as well.</p>
 <p>We can also calculate the global minimum portfolio weights, its risk
 and return characteristics.</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">gmin_mu0<span style="color:#666">=</span>B<span style="color:#666">/</span>A                       <span style="color:#080;font-style:italic"># the expected return at the global minimum risk</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">gmin_mu0<span style="color:#666">=</span>B<span style="color:#666">/</span>A                       <span style="color:#080;font-style:italic"># the expected return at the global minimum risk</span>
 gmin_sigma0<span style="color:#666">=</span>compute_risk(gmin_mu0) <span style="color:#080;font-style:italic"># the global minimum risk</span>
 w_gmin<span style="color:#666">=</span>sigma_inv<span style="color:#a2f">@all_ones</span><span style="color:#666">/</span>A        <span style="color:#080;font-style:italic"># the global minimum risk portfolio</span>
 </code></pre></div><table>
@@ -331,7 +331,7 @@ one, as the difference is invested in the risk free asset. Therefore,
 both risky and risk-free assets contributes to the expected return of
 the portfolio:</p>
 <p>\begin{align*}
-\mu_p=&amp;\boldsymbol w^T\boldsymbol\mu+(1-\boldsymbol w^T\boldsymbol 1)R_f\\<br>
+\mu_p=&amp;\boldsymbol w^T\boldsymbol\mu+(1-\boldsymbol w^T\boldsymbol 1)R_f\\\\
 \end{align*}</p>
 <p>However, the overall portfolio risk depends only on the risky assets,
 since the risk free asset has zero variance and is independent of the
@@ -400,16 +400,16 @@ portfolio:
 w_m^T\boldsymbol\mu\) and \(\sigma_0=\boldsymbol w_m^T\Sigma\boldsymbol
 w_m\) gives:</p>
 <p>\begin{align*}
-\mu_0=&amp;\frac{C-BR_f}{B-AR_f}\\\<br>
+\mu_0=&amp;\frac{C-BR_f}{B-AR_f}\\
 \sigma_0=&amp;\frac{\sqrt{AR_f^2-2R_fB+C}}{B-AR_f}
 \end{align*}</p>
 <p>Now we can put all the formulas together to compute CML and the
 tangency portfolio:</p>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">math</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#a2f;font-weight:bold">import</span> <span style="color:#00f;font-weight:bold">math</span>
 rf <span style="color:#666">=</span> <span style="color:#666">0.05</span>
 D<span style="color:#666">=</span>A<span style="color:#666">*</span>rf<span style="color:#666">*</span>rf<span style="color:#666">-</span><span style="color:#666">2</span><span style="color:#666">*</span>rf<span style="color:#666">*</span>B<span style="color:#666">+</span>C
 sigma_rf<span style="color:#666">=</span>(mu0<span style="color:#666">-</span>rf)<span style="color:#666">/</span>math<span style="color:#666">.</span>sqrt(D)
-w_m<span style="color:#666">=</span>sigma_inv<span style="">@</span>(mu <span style="color:#666">-</span> rf)<span style="color:#666">/</span>(all_ones<span style="color:#a2f">@sigma</span><span style="">@</span>(mu <span style="color:#666">-</span> rf))
+w_m<span style="color:#666">=</span>sigma_inv<span style="color:#666">@</span>(mu <span style="color:#666">-</span> rf)<span style="color:#666">/</span>(all_ones<span style="color:#a2f">@sigma</span><span style="color:#666">@</span>(mu <span style="color:#666">-</span> rf))
 mu_t<span style="color:#666">=</span>(C<span style="color:#666">-</span>B<span style="color:#666">*</span>rf)<span style="color:#666">/</span>(B<span style="color:#666">-</span>A<span style="color:#666">*</span>rf)
 sigma_t<span style="color:#666">=</span>math<span style="color:#666">.</span>sqrt(D)<span style="color:#666">/</span>(B<span style="color:#666">-</span>A<span style="color:#666">*</span>rf)
 </code></pre></div><p>The result is illustrated in the following figure. It can be observed
