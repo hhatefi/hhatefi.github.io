@@ -133,7 +133,7 @@ context is assumed to be <a href="https://en.wikipedia.org/wiki/Linear%5Ftime-in
 price by looking into its price history. The FIR takes the price
 history as the input and generates an estimation future price. The
 block diagram of the price predictor is depicted below. The system is
-identifided through an adaptive process: it starts with an initial FIR
+identified through an adaptive process: it starts with an initial FIR
 and adapts it every time a new price tick comes.</p>
 <figure class="diag"><img src="https://hhatefi.github.io/ox-hugo/system_identification_block_diagram.svg"
          alt="Figure 1: System Identification"/><figcaption>
@@ -149,12 +149,12 @@ generates the exact price. Let \(L\) be the length of price history and
 \boldsymbol{p}(n)=\Big(p(n),p(n-1),\dotsc,p(n-L+1)\Big)^T
 \end{equation*}</p>
 <p>is a vector containing \(L\) recent price ticks. The objective is to find
-impuls response</p>
+impulse response</p>
 <p>\begin{equation*}
 \boldsymbol{h}(n)=\Big(h_1(n),h_2(n),\dotsc,h_L(n)\Big)^T
 \end{equation*}</p>
 <p>such that it is as close as possible to the previous FIR,
-i.e. \(\boldsymbol{h}(n-1)\), and at the same time pefectly predicts the
+i.e. \(\boldsymbol{h}(n-1)\), and at the same time perfectly predicts the
 next price tick,
 i.e. \(\boldsymbol{h}^T(n)\boldsymbol{p}(n)=p(n+1)\). This can be
 formulated as the following optimization problem:</p>
@@ -193,17 +193,17 @@ samples coming from the speaker instead of price ticks and replace
 \(p(n+1)\) with microphone signal in \(\eqref{eq:pred}\). Then,
 \(\eqref{eq:raw:nlms}\) identifies the FIR of an acoustic echo
 canceler. This approach to echo cancellation is referred to as
-<em>normalised least mean square</em> method, which will be discussed in the
+<em>normalized least mean square</em> method, which will be discussed in the
 next section. That is to say, the system which predicts the current
 price actually produces an echo of past prices that best matches the
 current priced.</p>
 <h2 id="normalized-least-mean-square">Normalized least mean square</h2>
 <p>A price predictor, an echo canceler, or any other unknown system can
-be identified by <em>normilized least mean square</em> (NLMS) method. The
+be identified by <em>normalized least mean square</em> (NLMS) method. The
 procedure follows the computation given by \(\eqref{eq:raw:nlms}\) and
 \(\eqref{eq:prederr}\). It takes the signal value at each time point,
 computes the predicted system output, compares it with the real output
-to estimate error and then accordingly updates the impule
+to estimate error and then accordingly updates the impulse
 response. NLMS however adds two parameters to have finer control over
 recursion \(\eqref{eq:raw:nlms}\). How much the FIR is updated is also
 controlled by step size (\(\alpha\)) and regularization parameter
@@ -219,8 +219,8 @@ until convergence. For numerical stability, \(\alpha\) must lie between
 0 and 2. Regularization parameter \(\delta\) helps system identification
 performing well in case the signal is noisy.</p>
 <h2 id="python-implementation">Python implementation</h2>
-<p>The implemention of NLMS algorithm on price data is
-straightforward. It is enough to update the impule response
+<p>The implementation of NLMS algorithm on price data is
+straightforward. It is enough to update the impulse response
 iteratively according to \(\eqref{eq:nlms}\). The algorithm has three
 parameters:</p>
 <ul>
