@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="description" content="The HTML5 Herald" />
 <meta name="author" content="Hassan Hatefi" /><meta property="og:title" content="From echo cancellation to price prediction" />
-<meta property="og:description" content="Echo cancellation is a technique to remove acoustic echo from audio signal. The procedure is generally applicable to any signal, for instance price time-series of an asset. This post prooses that the price of an asset at any moment can be seen as the echo of its prices at some previous moments." />
+<meta property="og:description" content="Echo cancellation is a technique to remove acoustic echo from audio signal. The procedure is generally applicable to any signal, for instance price time-series of an asset. This post proposes that the price of an asset at any moment can be seen as the echo of its prices at some previous moments." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://hhatefi.github.io/posts/price_prediction/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2022-03-14T21:51:00+01:00" />
@@ -17,7 +17,7 @@
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="From echo cancellation to price prediction"/>
-<meta name="twitter:description" content="Echo cancellation is a technique to remove acoustic echo from audio signal. The procedure is generally applicable to any signal, for instance price time-series of an asset. This post prooses that the price of an asset at any moment can be seen as the echo of its prices at some previous moments."/>
+<meta name="twitter:description" content="Echo cancellation is a technique to remove acoustic echo from audio signal. The procedure is generally applicable to any signal, for instance price time-series of an asset. This post proposes that the price of an asset at any moment can be seen as the echo of its prices at some previous moments."/>
 
 <meta name="generator" content="Hugo 0.92.2" />
     
@@ -121,7 +121,7 @@ if (!doNotTrack) {
 
     <p>Echo cancellation is a technique to remove acoustic echo from audio
 signal. The procedure is generally applicable to any signal, for
-instance price time-series of an asset. This post prooses that the
+instance price time-series of an asset. This post proposes that the
 price of an asset at any moment can be seen as the echo of its prices
 at some previous moments. It then explains how price prediction
 problem can be formulated and solved using echo cancellation.</p>
@@ -231,7 +231,8 @@ parameters:</p>
 <p>These parameters are passed while constructing an object of
 <code>system_identifier</code>. This class provides system identification
 functionality.</p>
-<p>{{&lt; gist hhatefi 85bd1bc50f229ad892d8e143710f5ef3 &gt;}}</p>
+<script type="application/javascript" src="https://gist.github.com/hhatefi/85bd1bc50f229ad892d8e143710f5ef3.js"></script>
+
 <p>In this class, <code>update_filter</code> takes the new price value, computes the
 error and updates the FIR via \(\eqref{eq:prederr}\) and
 \(\eqref{eq:nlms}\), respectively. At the end it returns the predicted
